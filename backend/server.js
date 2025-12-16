@@ -31,3 +31,20 @@ testConnection().then(() => {
     // Se a conexão falhar, o servidor não inicia
     console.error("Falha ao iniciar o servidor devido ao erro de conexão:", error);
 });
+
+const { sequelize, testConnection } = require('./src/config/db');
+
+// Importação dos modelos para que o Sequelize os conheça antes do sync
+require('./src/models/Usuario');
+require('./src/models/Categoria');
+require('./src/models/Transacao');
+
+testConnection().then(async () => {
+    // alter: true tenta atualizar as tabelas se você mudar o código sem apagar os dados
+    await sequelize.sync({ alter: true }); 
+    console.log('✅ Tabelas sincronizadas com o banco de dados.');
+    
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando em http://localhost:${PORT}`);
+    });
+});
