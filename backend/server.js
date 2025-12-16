@@ -1,50 +1,51 @@
 // backend/server.js
 
-// Importações necessárias
-const express = require('express');
-const dotenv = require('dotenv');
-// Importar o módulo 'path' para resolver caminhos de arquivos
+// 1. Configuração de Variáveis de Ambiente (Deve ser a primeira coisa)
 const path = require('path'); 
-
+const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '.env') }); 
 
-const { testConnection } = require('./src/config/db'); 
-
-const app = express();
-// Se o carregamento do .env falhar por algum motivo, ele usará a porta 3001
-const PORT = process.env.PORT || 3001; 
-
-// Middlewares
-app.use(express.json());
-
-// Rota de teste
-app.get('/', (req, res) => {
-    res.send('API do Dashboard Financeiro em execução!');
-});
-
-// Testa a conexão e inicia o servidor
-testConnection().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Servidor rodando em http://localhost:${PORT}`);
-    });
-}).catch(error => {
-    // Se a conexão falhar, o servidor não inicia
-    console.error("Falha ao iniciar o servidor devido ao erro de conexão:", error);
-});
-
+// 2. Importações de dependências
+const express = require('express');
 const { sequelize, testConnection } = require('./src/config/db');
 
-// Importação dos modelos para que o Sequelize os conheça antes do sync
+// 3. Importação dos modelos (Sequelize precisa conhecê-los para o sync)
 require('./src/models/Usuario');
 require('./src/models/Categoria');
 require('./src/models/Transacao');
 
-testConnection().then(async () => {
-    // alter: true tenta atualizar as tabelas se você mudar o código sem apagar os dados
-    await sequelize.sync({ alter: true }); 
-    console.log('✅ Tabelas sincronizadas com o banco de dados.');
-    
-    app.listen(PORT, () => {
-        console.log(`Servidor rodando em http://localhost:${PORT}`);
-    });
+// 4. Inicialização do App
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// 5. Middlewares
+app.use(express.json());
+
+// 6. Rotas (Exemplo de rota de teste)
+app.get('/', (req, res) => {
+    res.send('API do Dashboard Financeiro em execução!');
 });
+
+// 7. Conexão com Banco de Dados e Inicialização do Servidor
+const startServer = async () => {
+    try {
+        // Testa a conexão
+        const isConnected = await testConnection();
+        
+        if (isConnected) {
+            // Sincroniza os modelos com as tabelas do Neon
+            // alter: true ajusta as tabelas sem apagar os dados existentes
+            await sequelize.sync({ alter: true });
+            console.log('✅ Tabelas sincronizadas com o banco de dados.');
+
+            // Inicia o servidor apenas se o banco estiver pronto
+            app.listen(PORT, () => {
+                console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+            });
+        }
+    } catch (error) {
+        console.error("❌ Falha ao iniciar o servidor:", error);
+    }
+};
+
+startServer();
