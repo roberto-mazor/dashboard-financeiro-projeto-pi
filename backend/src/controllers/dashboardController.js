@@ -21,7 +21,7 @@ exports.getResumo = async (req, res) => {
             if (t.categoria) {
                 const valor = parseFloat(t.valor) || 0;
                 const tipoReal = t.categoria.tipo;
-                const nomeCat = t.categoria.nome; // Vamos ver o nome!
+                const nomeCat = t.categoria.nome; // ver o nome!
 
                 if (tipoReal === 'Receita') {
                     totalReceitas += valor;
