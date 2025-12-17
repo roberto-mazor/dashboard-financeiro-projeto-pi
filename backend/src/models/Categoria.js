@@ -23,5 +23,6 @@ const Categoria = sequelize.define('Categoria', {
 
 // Relacionamento: Categoria pertence a um Usuário
 Categoria.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Categoria.hasMany(require('./Transacao'), { foreignKey: 'id_categoria' });
 
 module.exports = Categoria;

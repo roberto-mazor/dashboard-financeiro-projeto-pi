@@ -19,14 +19,18 @@ exports.getResumo = async (req, res) => {
         let totalDespesas = 0;
 
         transacoes.forEach(t => {
-            // Convertemos para número para evitar erros de soma de strings
             const valor = parseFloat(t.valor) || 0;
             
-            // Verificamos se a categoria existe antes de acessar o tipo
-            if (t.Categoria && t.Categoria.tipo === 'Receita') {
-                totalReceitas += valor;
-            } else if (t.Categoria && t.Categoria.tipo === 'Despesa') {
-                totalDespesas += valor;
+            // Log temporário para debug: vamos ver o que o Sequelize está trazendo
+            // console.log('Transacao:', t.id_transacao, 'Categoria:', t.Categoria);
+
+            // Verifica se a categoria existe e soma de acordo com o tipo
+            if (t.Categoria) {
+                if (t.Categoria.tipo === 'Receita') {
+                    totalReceitas += valor;
+                } else if (t.Categoria.tipo === 'Despesa') {
+                    totalDespesas += valor;
+                }
             }
         });
 
