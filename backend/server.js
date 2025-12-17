@@ -7,6 +7,9 @@ const express = require('express');
 const { sequelize, testConnection } = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
+const transacaoRoutes = require('./src/routes/transacaoRoutes');
+
+// Models
 
 require('./src/models/Usuario');
 require('./src/models/Categoria');
@@ -25,7 +28,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+
 app.use('/api/categorias', categoriaRoutes);
+app.use('/api/transacoes', transacaoRoutes);
+
 
 // Iniciar o servidor
 
