@@ -8,6 +8,7 @@ const { sequelize, testConnection } = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
 const transacaoRoutes = require('./src/routes/transacaoRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
 
 // Models
 
@@ -31,6 +32,7 @@ app.use('/api/auth', authRoutes);
 
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/transacoes', transacaoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 
 // Iniciar o servidor
