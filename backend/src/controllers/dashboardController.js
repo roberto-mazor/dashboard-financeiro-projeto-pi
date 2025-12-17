@@ -38,8 +38,6 @@ exports.getResumo = async (req, res) => {
             totalTransacoes: transacoes.length
         });
     } catch (error) {
-        // MUITO IMPORTANTE: Esse log vai nos dizer o erro real se falhar de novo
-        console.error("ERRO NO DASHBOARD:", error); 
         res.status(500).json({ error: 'Erro ao gerar resumo.' });
     }
 };
