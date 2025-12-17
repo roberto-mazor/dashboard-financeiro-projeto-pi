@@ -29,3 +29,36 @@ exports.registrar = async (req, res) => {
         res.status(500).json({ error: 'Erro ao registrar usuário.' });
     }
 };
+
+exports.login = async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+
+        // 1. Buscar usuário
+        const usuario = await Usuario.findOne({ where: { email } });
+        if (!usuario) {
+            return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+        }
+
+        // 2. Verificar senha
+        const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+        if (!senhaValida) {
+            return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+        }
+
+        // 3. Gerar Token JWT
+        const token = jwt.sign(
+            { id: usuario.id_usuario }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' } // Expira em 1 dia
+        );
+
+        res.json({
+            message: 'Login realizado com sucesso!',
+            token,
+            usuario: { id: usuario.id_usuario, nome: usuario.nome }
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao realizar login.' });
+    }
+};
