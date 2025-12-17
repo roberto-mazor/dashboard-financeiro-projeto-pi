@@ -8,10 +8,9 @@ exports.getResumo = async (req, res) => {
 
         const transacoes = await Transacao.findAll({
             where: { id_usuario },
-            // 🚨 Importante: Garantir que o nome do Model no include esteja correto
-            include: [{ 
-                model: Categoria, 
-                attributes: ['tipo'] 
+            include: [{
+                model: Categoria,
+                as: 'categoria' // DEVE ser igual ao que está no model
             }]
         });
 
@@ -19,31 +18,28 @@ exports.getResumo = async (req, res) => {
         let totalDespesas = 0;
 
         transacoes.forEach(t => {
-            const valor = parseFloat(t.valor) || 0;
-            
-            // Log temporário para debug: vamos ver o que o Sequelize está trazendo
-            // console.log('Transacao:', t.id_transacao, 'Categoria:', t.Categoria);
+            if (t.categoria) {
+                const valor = parseFloat(t.valor) || 0;
+                const tipoReal = t.categoria.tipo;
+                const nomeCat = t.categoria.nome; // Vamos ver o nome!
 
-            // Verifica se a categoria existe e soma de acordo com o tipo
-            if (t.Categoria) {
-                if (t.Categoria.tipo === 'Receita') {
+                if (tipoReal === 'Receita') {
                     totalReceitas += valor;
-                } else if (t.Categoria.tipo === 'Despesa') {
+                } else if (tipoReal === 'Despesa') {
                     totalDespesas += valor;
                 }
             }
         });
 
-        const saldoAtual = totalReceitas - totalDespesas;
-
         res.json({
             totalReceitas: totalReceitas.toFixed(2),
             totalDespesas: totalDespesas.toFixed(2),
-            saldoAtual: saldoAtual.toFixed(2),
+            saldoAtual: (totalReceitas - totalDespesas).toFixed(2),
             totalTransacoes: transacoes.length
         });
     } catch (error) {
-        console.error("Erro detalhado:", error); // Isso vai mostrar o erro real no seu terminal
-        res.status(500).json({ error: 'Erro ao gerar resumo do dashboard.' });
+        // MUITO IMPORTANTE: Esse log vai nos dizer o erro real se falhar de novo
+        console.error("ERRO NO DASHBOARD:", error); 
+        res.status(500).json({ error: 'Erro ao gerar resumo.' });
     }
 };

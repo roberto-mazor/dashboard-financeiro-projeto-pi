@@ -27,6 +27,6 @@ const Transacao = sequelize.define('Transacao', {
 
 // Relacionamentos
 Transacao.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria' });
+Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
 
 module.exports = Transacao;
