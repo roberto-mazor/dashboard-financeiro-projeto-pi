@@ -6,6 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const { sequelize, testConnection } = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
+const categoriaRoutes = require('./src/routes/categoriaRoutes');
 
 require('./src/models/Usuario');
 require('./src/models/Categoria');
@@ -15,7 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middlewares
-app.use(express.json()); // Apenas uma vez é suficiente
+app.use(express.json());
+
 
 // Rotas
 app.get('/', (req, res) => {
@@ -23,6 +25,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/categorias', categoriaRoutes);
+
+// Iniciar o servidor
 
 const startServer = async () => {
     try {
