@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+// src/controllers/dashboardController.js
 const Transacao = require('../models/Transacao');
 const Categoria = require('../models/Categoria');
 
@@ -6,21 +6,26 @@ exports.getResumo = async (req, res) => {
     try {
         const id_usuario = req.usuario.id;
 
-        // 1. Buscar todas as transações do usuário com os dados da categoria
         const transacoes = await Transacao.findAll({
             where: { id_usuario },
-            include: [{ model: Categoria, attributes: ['tipo'] }]
+            // 🚨 Importante: Garantir que o nome do Model no include esteja correto
+            include: [{ 
+                model: Categoria, 
+                attributes: ['tipo'] 
+            }]
         });
 
-        // 2. Calcular Totais
         let totalReceitas = 0;
         let totalDespesas = 0;
 
         transacoes.forEach(t => {
-            const valor = parseFloat(t.valor);
-            if (t.Categoria.tipo === 'Receita') {
+            // Convertemos para número para evitar erros de soma de strings
+            const valor = parseFloat(t.valor) || 0;
+            
+            // Verificamos se a categoria existe antes de acessar o tipo
+            if (t.Categoria && t.Categoria.tipo === 'Receita') {
                 totalReceitas += valor;
-            } else {
+            } else if (t.Categoria && t.Categoria.tipo === 'Despesa') {
                 totalDespesas += valor;
             }
         });
@@ -34,6 +39,7 @@ exports.getResumo = async (req, res) => {
             totalTransacoes: transacoes.length
         });
     } catch (error) {
+        console.error("Erro detalhado:", error); // Isso vai mostrar o erro real no seu terminal
         res.status(500).json({ error: 'Erro ao gerar resumo do dashboard.' });
     }
 };
