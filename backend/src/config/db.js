@@ -5,14 +5,12 @@ const { Sequelize } = require('sequelize');
 // Usa a variável DATABASE_URL do .env
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
-  protocol: 'postgres',
   dialectOptions: {
     ssl: {
-        require: true,
-        rejectUnauthorized: false
+      require: true,
+      rejectUnauthorized: false // Essencial para o Neon na Vercel
     }
-  },
-  logging: false,
+  }
 });
 
 // Função para testar a conexão
