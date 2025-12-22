@@ -1,10 +1,16 @@
 // backend/server.js
-const path = require('path'); 
-const dotenv = require('dotenv');
-dotenv.config({ path: path.resolve(__dirname, '.env') }); 
+
+// 1. IMPORTANTE: Carregar o driver pg antes de tudo para evitar o erro "install pg manually"
+require('pg'); 
 
 const express = require('express');
 const { sequelize, testConnection } = require('./src/config/db');
+
+// Importar dotenv apenas para ambiente local
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const authRoutes = require('./src/routes/authRoutes');
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
 const transacaoRoutes = require('./src/routes/transacaoRoutes');
@@ -30,18 +36,15 @@ app.use('/api/categorias', categoriaRoutes);
 app.use('/api/transacoes', transacaoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Configuração de Inicialização
-const PORT = process.env.PORT || 3001;
-
+// Configuração de Inicialização para ambiente LOCAL
 if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3001;
     const startServer = async () => {
         try {
             const isConnected = await testConnection();
             if (isConnected) {
-                // Sincroniza apenas em desenvolvimento para evitar lentidão em produção
                 await sequelize.sync({ alter: true });
                 console.log('✅ Tabelas sincronizadas localmente.');
-
                 app.listen(PORT, () => {
                     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
                 });
@@ -53,5 +56,5 @@ if (process.env.NODE_ENV !== 'production') {
     startServer();
 }
 
-
-module.exports = app; // Essencial para a Vercel
+// Exportar app para a Vercel transformar em Serverless Function
+module.exports = app;
