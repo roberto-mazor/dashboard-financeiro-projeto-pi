@@ -8,10 +8,6 @@
   ],
   "routes": [
     {
-      "src": "/api/auth/login",
-      "dest": "backend/server.js"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "backend/server.js"
     },
