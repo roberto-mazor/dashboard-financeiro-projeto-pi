@@ -62,3 +62,39 @@ exports.deletarTransacao = async (req, res) => {
         res.status(500).json({ error: 'Erro ao remover transação.' });
     }
 };
+
+// Editar uma transação existente
+exports.editarTransacao = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { valor, data, descricao, id_categoria } = req.body;
+        const id_usuario = req.usuario.id;
+
+        // Verifica se a transação pertence ao usuário
+        const transacao = await Transacao.findOne({ where: { id_transacao: id, id_usuario } });
+
+        if (!transacao) {
+            return res.status(404).json({ error: 'Transação não encontrada.' });
+        }
+
+        // Se o usuário estiver mudando a categoria, verifica se a nova categoria existe
+        if (id_categoria) {
+            const categoriaExistente = await Categoria.findOne({ where: { id_categoria, id_usuario } });
+            if (!categoriaExistente) {
+                return res.status(404).json({ error: 'Nova categoria não encontrada.' });
+            }
+        }
+
+        // Atualiza os campos (mantém o original se o campo não for enviado)
+        transacao.valor = valor || transacao.valor;
+        transacao.data = data || transacao.data;
+        transacao.descricao = descricao || transacao.descricao;
+        transacao.id_categoria = id_categoria || transacao.id_categoria;
+
+        await transacao.save();
+
+        res.json({ message: 'Transação atualizada com sucesso!', transacao });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao editar transação.' });
+    }
+};
