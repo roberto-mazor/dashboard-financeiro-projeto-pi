@@ -1,3 +1,7 @@
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db'); // Verifique se o caminho está correto
+const Usuario = require('./Usuario');
+
 const Categoria = sequelize.define('Categoria', {
   id_categoria: {
     type: DataTypes.INTEGER,
@@ -12,12 +16,12 @@ const Categoria = sequelize.define('Categoria', {
     type: DataTypes.ENUM('Receita', 'Despesa'),
     allowNull: false,
   },
-  
+  // Adicionando explicitamente para o Sequelize não se perder no INSERT
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'usuarios', // nome da tabela de usuários
+      model: 'usuarios',
       key: 'id'
     }
   }
@@ -25,3 +29,8 @@ const Categoria = sequelize.define('Categoria', {
   tableName: 'categorias',
   timestamps: false,
 });
+
+// Relacionamento
+Categoria.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+
+module.exports = Categoria;
