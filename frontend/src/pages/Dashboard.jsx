@@ -14,6 +14,9 @@ const Dashboard = () => {
   const [categorias, setCategorias] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
   
+  // Estado para Feedback Visual
+  const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
+
   // Estados para Nova Categoria
   const [mostraFormCategoria, setMostraFormCategoria] = useState(false);
   const [novoNomeCategoria, setNovoNomeCategoria] = useState('');
@@ -32,6 +35,12 @@ const Dashboard = () => {
   const storedUser = localStorage.getItem('user');
   const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
 
+  // Função para exibir alertas que somem sozinhos
+  const mostrarFeedback = (msg, tipo) => {
+    setFeedback({ mensagem: msg, tipo });
+    setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
+  };
+
   const carregarDados = async () => {
     try {
       const [resResumo, resLista, resCats] = await Promise.all([
@@ -45,6 +54,7 @@ const Dashboard = () => {
       setCategorias(resCats.data);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      mostrarFeedback('Erro ao carregar dados do servidor', 'erro');
     }
   };
 
@@ -58,9 +68,8 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  // Função para Criar Categoria
   const handleAddCategoria = async () => {
-    if (!novoNomeCategoria) return alert("Digite o nome da categoria");
+    if (!novoNomeCategoria) return mostrarFeedback("Digite o nome da categoria", "erro");
     try {
       const response = await api.post('/categorias', { 
         nome: novoNomeCategoria, 
@@ -70,8 +79,9 @@ const Dashboard = () => {
       setForm({ ...form, id_categoria: response.data.id_categoria });
       setNovoNomeCategoria('');
       setMostraFormCategoria(false);
+      mostrarFeedback('Categoria criada com sucesso!', 'sucesso');
     } catch (error) {
-      alert("Erro ao criar categoria: " + (error.response?.data?.error || "Erro de conexão"));
+      mostrarFeedback("Erro ao criar categoria", "erro");
     }
   };
 
@@ -80,13 +90,15 @@ const Dashboard = () => {
     try {
       if (form.id_transacao) {
         await api.put(`/transacoes/${form.id_transacao}`, form);
+        mostrarFeedback('Transação atualizada!', 'sucesso');
       } else {
         await api.post('/transacoes', form);
+        mostrarFeedback('Lançamento realizado!', 'sucesso');
       }
       setForm({ id_transacao: null, descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] });
       carregarDados();
     } catch (error) {
-      alert('Erro ao processar transação: ' + (error.response?.data?.error || 'Erro desconhecido'));
+      mostrarFeedback('Erro ao salvar transação', 'erro');
     }
   };
 
@@ -94,9 +106,10 @@ const Dashboard = () => {
     if (window.confirm('Deseja realmente excluir esta transação?')) {
       try {
         await api.delete(`/transacoes/${id}`);
+        mostrarFeedback('Transação removida!', 'sucesso');
         carregarDados();
       } catch (error) {
-        alert('Erro ao excluir transação.');
+        mostrarFeedback('Erro ao excluir transação', 'erro');
       }
     }
   };
@@ -117,6 +130,12 @@ const Dashboard = () => {
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '40px' },
     card: { padding: '20px', borderRadius: '12px', color: 'white', display: 'flex', flexDirection: 'column', gap: '10px' },
+    feedback: {
+      padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold',
+      backgroundColor: feedback.tipo === 'sucesso' ? '#dcfce7' : '#fee2e2',
+      color: feedback.tipo === 'sucesso' ? '#166534' : '#991b1b',
+      border: `1px solid ${feedback.tipo === 'sucesso' ? '#166534' : '#991b1b'}`,
+    },
     formContainer: { marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '12px' },
     form: { display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' },
     input: { padding: '10px', borderRadius: '6px', border: '1px solid #ddd', flex: 1, minWidth: '150px' },
@@ -135,6 +154,11 @@ const Dashboard = () => {
           </button>
         </div>
       </header>
+
+      {/* Alerta de Feedback */}
+      {feedback.mensagem && (
+        <div style={styles.feedback}>{feedback.mensagem}</div>
+      )}
 
       {/* Cards de Resumo */}
       <div style={styles.grid}>
@@ -171,6 +195,7 @@ const Dashboard = () => {
               type="button" 
               onClick={() => setMostraFormCategoria(!mostraFormCategoria)}
               style={{ ...styles.button, backgroundColor: '#6366f1', padding: '10px' }}
+              title="Criar Categoria"
             >
               <PlusCircle size={20} />
             </button>
@@ -181,10 +206,9 @@ const Dashboard = () => {
           </button>
         </form>
 
-        {/* Mini Form para Nova Categoria */}
         {mostraFormCategoria && (
           <div style={{ marginTop: '15px', padding: '15px', border: '1px dashed #6366f1', borderRadius: '8px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <input style={styles.input} placeholder="Nome da nova categoria" value={novoNomeCategoria} onChange={e => setNovoNomeCategoria(e.target.value)} />
+            <input style={styles.input} placeholder="Nome da categoria" value={novoNomeCategoria} onChange={e => setNovoNomeCategoria(e.target.value)} />
             <select style={{ ...styles.input, maxWidth: '150px' }} value={tipoCategoria} onChange={e => setTipoCategoria(e.target.value)}>
               <option value="despesa">Despesa</option>
               <option value="receita">Receita</option>
