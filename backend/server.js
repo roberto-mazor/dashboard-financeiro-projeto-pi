@@ -1,6 +1,6 @@
 // backend/server.js
 
-// 1. IMPORTANTE: Carregar o driver pg antes de tudo para evitar o erro "install pg manually"
+// 1. IMPORTANTE: Carregar o driver pg antes de tudo para evitar o erro "install pg manually / Erro na vercel"
 require('pg'); 
 
 const express = require('express');
