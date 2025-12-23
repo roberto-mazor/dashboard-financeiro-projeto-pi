@@ -10,36 +10,36 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionTable from '../components/TransactionTable';
 
 const Dashboard = () => {
-  const { theme, isDarkMode, toggleTheme } = useTheme();
-  const navigate = useNavigate();
-  
-  // Estados de Dados
-  const [transacoes, setTransacoes] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
-  
-  // Estados de Interface
-  const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
-  const [form, setForm] = useState({
-    id_transacao: null, 
-    descricao: '',
-    valor: '',
-    id_categoria: '',
-    data: new Date().toISOString().split('T')[0]
-  });
+const { theme, isDarkMode, toggleTheme } = useTheme();
+const navigate = useNavigate();
 
-  // Dados do Usuário
-  const storedUser = localStorage.getItem('user');
-  const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
+// Estados de Dados
+const [transacoes, setTransacoes] = useState([]);
+const [categorias, setCategorias] = useState([]);
+const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
 
-  // Helper para alertas
-  const mostrarFeedback = (msg, tipo) => {
-    setFeedback({ mensagem: msg, tipo });
-    setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
-  };
+// Estados de Interface
+const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
+const [form, setForm] = useState({
+  id_transacao: null, 
+  descricao: '',
+  valor: '',
+  id_categoria: '',
+  data: new Date().toISOString().split('T')[0]
+});
 
-  // Busca principal de dados
-  const carregarDados = async () => {
+// Dados do Usuário
+const storedUser = localStorage.getItem('user');
+const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
+// Helper para alertas
+
+const mostrarFeedback = (msg, tipo) => {
+  setFeedback({ mensagem: msg, tipo });
+  setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
+};
+
+// Busca principal de dados
+const carregarDados = async () => {
     try {
       const [resResumo, resLista, resCats] = await Promise.all([
         api.get('/dashboard/resumo'),
@@ -61,7 +61,7 @@ const Dashboard = () => {
   }, []);
 
   // Ações de Transação
-  const handleSaveTransacao = async (e) => {
+const handleSaveTransacao = async (e) => {
     e.preventDefault();
     try {
       if (form.id_transacao) {
@@ -78,7 +78,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+const handleDelete = async (id) => {
     if (window.confirm('Deseja excluir este registro?')) {
       try {
         await api.delete(`/transacoes/${id}`);
@@ -90,7 +90,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEdit = (t) => {
+const handleEdit = (t) => {
     setForm({
       id_transacao: t.id_transacao,
       descricao: t.descricao,
@@ -102,7 +102,7 @@ const Dashboard = () => {
   };
 
   // Ação de Categoria
-  const handleAddCategoria = async (nome, tipo) => {
+const handleAddCategoria = async (nome, tipo) => {
     try {
       const response = await api.post('/categorias', { nome, tipo });
       setCategorias([...categorias, response.data]);
@@ -115,7 +115,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/');
