@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -67,5 +68,21 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const [transacoes, setTransacoes] = useState([]);
+
+useEffect(() => {
+  const carregarDados = async () => {
+    try {
+      const response = await api.get('/dashboard/resumo'); // Rota do seu backend
+      // Aqui você pode atualizar os estados de entradas/saídas com os dados da Vercel
+      console.log('Dados do Backend:', response.data);
+    } catch (error) {
+      console.error('Erro ao carregar dashboard:', error);
+    }
+  };
+
+  carregarDados();
+}, []);
 
 export default Dashboard;
