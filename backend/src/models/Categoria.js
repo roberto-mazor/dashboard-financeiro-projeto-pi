@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db'); // Verifique se o caminho está correto
+const { sequelize } = require('../config/db');
 const Usuario = require('./Usuario');
 
 const Categoria = sequelize.define('Categoria', {
@@ -16,7 +16,7 @@ const Categoria = sequelize.define('Categoria', {
     type: DataTypes.ENUM('Receita', 'Despesa'),
     allowNull: false,
   },
-  // Adicionando explicitamente para o Sequelize não se perder no INSERT
+  // Campo explícito para evitar erros de mapeamento no INSERT
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
