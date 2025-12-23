@@ -34,10 +34,14 @@ exports.listarTransacoes = async (req, res) => {
         
         // Buscamos as transações incluindo os dados da categoria associada
         const transacoes = await Transacao.findAll({
-            where: { id_usuario },
-            include: [{ model: Categoria, attributes: ['nome', 'tipo'] }],
-            order: [['data', 'DESC']] // Mais recentes primeiro
-        });
+        where: { id_usuario },
+        include: [{ 
+        model: Categoria, 
+        as: 'categoria', // Adicione isso aqui
+        attributes: ['nome', 'tipo'] 
+    }],
+        order: [['data', 'DESC']]
+});
 
         res.json(transacoes);
     } catch (error) {
