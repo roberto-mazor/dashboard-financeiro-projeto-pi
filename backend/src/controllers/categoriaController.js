@@ -6,19 +6,19 @@ exports.criarCategoria = async (req, res) => {
         const { nome, tipo } = req.body;
         const id_usuario = req.usuario.id;
 
-        // CORREÇÃO: Formata o tipo para 'Receita' ou 'Despesa' para bater com o ENUM do banco
+        // Formatação para garantir compatibilidade com o ENUM('Receita', 'Despesa')
         const tipoFormatado = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
 
         const novaCategoria = await Categoria.create({
             nome,
-            tipo: tipoFormatado, // Enviando o valor formatado
+            tipo: tipoFormatado,
             id_usuario
         });
 
         res.status(201).json(novaCategoria);
     } catch (error) {
-        console.error('Erro detalhado:', error); // Ajuda a ver o erro exato nos logs da Vercel
-        res.status(500).json({ error: 'Erro ao criar categoria: ' + error.message });
+        console.error('Erro ao criar categoria:', error);
+        res.status(500).json({ error: 'Erro ao criar categoria no banco de dados.' });
     }
 };
 
@@ -26,7 +26,10 @@ exports.criarCategoria = async (req, res) => {
 exports.listarCategorias = async (req, res) => {
     try {
         const id_usuario = req.usuario.id;
-        const categorias = await Categoria.findAll({ where: { id_usuario } });
+        const categorias = await Categoria.findAll({ 
+            where: { id_usuario },
+            order: [['nome', 'ASC']] 
+        });
         res.json(categorias);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao buscar categorias.' });
@@ -46,7 +49,7 @@ exports.editarCategoria = async (req, res) => {
             return res.status(404).json({ error: 'Categoria não encontrada.' });
         }
 
-        // CORREÇÃO: Formata o tipo se ele for enviado
+        // Formata o tipo se ele for enviado
         if (tipo) {
             categoria.tipo = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
         }
@@ -70,9 +73,7 @@ exports.deletarCategoria = async (req, res) => {
             where: { id_categoria: id, id_usuario }
         });
 
-        if (!deletado) {
-            return res.status(404).json({ error: 'Categoria não encontrada.' });
-        }
+        if (!deletado) return res.status(404).json({ error: 'Categoria não encontrada.' });
 
         res.json({ message: 'Categoria eliminada com sucesso!' });
     } catch (error) {
