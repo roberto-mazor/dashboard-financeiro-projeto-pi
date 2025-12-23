@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, PlusCircle, ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react';
+import { 
+  LogOut, PlusCircle, ArrowUpCircle, ArrowDownCircle, 
+  DollarSign, Edit, Trash2, CheckCircle 
+} from 'lucide-react';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -11,8 +14,9 @@ const Dashboard = () => {
   const [categorias, setCategorias] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
   
-  // Estado para o formulário
+  // Estado para o formulário (id_transacao controla se é edição ou criação)
   const [form, setForm] = useState({
+    id_transacao: null, 
     descricao: '',
     valor: '',
     id_categoria: '',
@@ -49,15 +53,45 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  const handleAddTransacao = async (e) => {
+  const handleSaveTransacao = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/transacoes', form);
-      setForm({ descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] });
-      carregarDados(); // Recarrega os dados sem dar refresh na página
+      if (form.id_transacao) {
+        // MODO EDIÇÃO: Envia PUT para /transacoes/:id
+        await api.put(`/transacoes/${form.id_transacao}`, form);
+      } else {
+        // MODO CRIAÇÃO: Envia POST
+        await api.post('/transacoes', form);
+      }
+      
+      // Limpa o formulário e recarrega
+      setForm({ id_transacao: null, descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] });
+      carregarDados();
     } catch (error) {
-      alert('Erro ao salvar transação: ' + (error.response?.data?.error || 'Erro desconhecido'));
+      alert('Erro ao processar transação: ' + (error.response?.data?.error || 'Erro desconhecido'));
     }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Deseja realmente excluir esta transação?')) {
+      try {
+        await api.delete(`/transacoes/${id}`);
+        carregarDados();
+      } catch (error) {
+        alert('Erro ao excluir transação.');
+      }
+    }
+  };
+
+  const handleEdit = (t) => {
+    setForm({
+      id_transacao: t.id_transacao,
+      descricao: t.descricao,
+      valor: t.valor,
+      id_categoria: t.id_categoria,
+      data: t.data.split('T')[0] // Garante formato YYYY-MM-DD para o input date
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const styles = {
@@ -65,10 +99,11 @@ const Dashboard = () => {
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '40px' },
     card: { padding: '20px', borderRadius: '12px', color: 'white', display: 'flex', flexDirection: 'column', gap: '10px' },
-    form: { display: 'flex', gap: '10px', marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', flexWrap: 'wrap' },
+    formContainer: { marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '12px' },
+    form: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
     input: { padding: '10px', borderRadius: '6px', border: '1px solid #ddd', flex: 1, minWidth: '150px' },
-    button: { padding: '10px 20px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' }
+    button: { padding: '10px 20px', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold', transition: '0.2s' },
+    tableSection: { backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
   };
 
   return (
@@ -99,12 +134,12 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Formulário de Cadastro */}
-      <section>
-        <h3 style={{ marginBottom: '15px' }}>Nova Transação</h3>
-        <form onSubmit={handleAddTransacao} style={styles.form}>
+      {/* Formulário de Cadastro/Edição */}
+      <section style={styles.formContainer}>
+        <h3 style={{ marginBottom: '15px' }}>{form.id_transacao ? 'Editar Transação' : 'Nova Transação'}</h3>
+        <form onSubmit={handleSaveTransacao} style={styles.form}>
           <input style={styles.input} type="text" placeholder="Descrição" value={form.descricao} onChange={e => setForm({...form, descricao: e.target.value})} required />
-          <input style={styles.input} type="number" placeholder="Valor" value={form.valor} onChange={e => setForm({...form, valor: e.target.value})} required />
+          <input style={styles.input} type="number" step="0.01" placeholder="Valor" value={form.valor} onChange={e => setForm({...form, valor: e.target.value})} required />
           <input style={styles.input} type="date" value={form.data} onChange={e => setForm({...form, data: e.target.value})} required />
           <select style={styles.input} value={form.id_categoria} onChange={e => setForm({...form, id_categoria: e.target.value})} required>
             <option value="">Categoria...</option>
@@ -112,37 +147,74 @@ const Dashboard = () => {
               <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nome} ({cat.tipo})</option>
             ))}
           </select>
-          <button type="submit" style={styles.button}>
-            <PlusCircle size={20} /> Adicionar
+          <button 
+            type="submit" 
+            style={{ 
+              ...styles.button, 
+              backgroundColor: form.id_transacao ? '#f59e0b' : '#2563eb' 
+            }}
+          >
+            {form.id_transacao ? <><CheckCircle size={20} /> Atualizar</> : <><PlusCircle size={20} /> Adicionar</>}
           </button>
+          {form.id_transacao && (
+            <button 
+              type="button" 
+              onClick={() => setForm({ id_transacao: null, descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] })}
+              style={{ ...styles.button, backgroundColor: '#64748b' }}
+            >
+              Cancelar
+            </button>
+          )}
         </form>
       </section>
 
       {/* Tabela de Transações */}
-      <section style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ marginBottom: '20px' }}>Histórico de Transações</h3>
-        <table style={styles.table}>
-          <thead>
-            <tr style={{ textAlign: 'left', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '12px' }}>Descrição</th>
-              <th>Categoria</th>
-              <th>Data</th>
-              <th style={{ textAlign: 'right' }}>Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transacoes.map(t => (
-              <tr key={t.id_transacao} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                <td style={{ padding: '12px' }}>{t.descricao}</td>
-                <td style={{ color: '#64748b', fontSize: '14px' }}>{t.categoria?.nome || 'Sem categoria'}</td>
-                <td>{new Date(t.data).toLocaleDateString('pt-BR')}</td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold', color: t.categoria?.tipo === 'receita' ? '#10b981' : '#f43f5e' }}>
-                  {t.categoria?.tipo === 'receita' ? '+' : '-'} R$ {parseFloat(t.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </td>
+      <section style={styles.tableSection}>
+        <h3 style={{ marginBottom: '20px', color: '#333' }}>Histórico de Transações</h3>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+            <thead>
+              <tr style={{ textAlign: 'left', color: '#64748b', borderBottom: '2px solid #f1f5f9' }}>
+                <th style={{ padding: '12px 15px' }}>Descrição</th>
+                <th style={{ padding: '12px 15px' }}>Categoria</th>
+                <th style={{ padding: '12px 15px' }}>Data</th>
+                <th style={{ padding: '12px 15px', textAlign: 'right' }}>Valor</th>
+                <th style={{ padding: '12px 15px', textAlign: 'center' }}>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transacoes.map(t => {
+                const isEntrada = t.categoria?.tipo?.toLowerCase() === 'receita';
+                return (
+                  <tr key={t.id_transacao} style={{ borderBottom: '1px solid #f8fafc' }}>
+                    <td style={{ padding: '16px 15px', color: '#1e293b', fontWeight: '500' }}>{t.descricao}</td>
+                    <td style={{ padding: '16px 15px' }}>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
+                        {t.categoria?.nome || 'Geral'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 15px', color: '#64748b' }}>
+                      {new Date(t.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                    </td>
+                    <td style={{ padding: '16px 15px', textAlign: 'right', fontWeight: 'bold', color: isEntrada ? '#10b981' : '#f43f5e' }}>
+                      {isEntrada ? '+ ' : '- '} R$ {Math.abs(parseFloat(t.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ padding: '16px 15px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                        <button onClick={() => handleEdit(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }} title="Editar">
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => handleDelete(t.id_transacao)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }} title="Remover">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
