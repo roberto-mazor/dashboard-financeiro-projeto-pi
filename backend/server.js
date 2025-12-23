@@ -4,6 +4,7 @@
 require('pg'); 
 
 const express = require('express');
+const cors = require('cors');
 const { sequelize, testConnection } = require('./src/config/db');
 
 // Importar dotenv apenas para ambiente local
@@ -22,6 +23,15 @@ require('./src/models/Categoria');
 require('./src/models/Transacao');
 
 const app = express();
+
+// CONFIGURAR O CORS
+app.use(cors({
+  origin: '*', // Permite qualquer origem (ideal para desenvolvimento)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
 
 // Middlewares
 app.use(express.json());
