@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Sun, Moon } from 'lucide-react';
 import api from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Importação dos subcomponentes
 import SummaryCards from '../components/SummaryCards';
@@ -9,6 +10,7 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionTable from '../components/TransactionTable';
 
 const Dashboard = () => {
+  const { theme, isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
   // Estados de Dados
@@ -99,7 +101,7 @@ const Dashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Ação de Categoria (passada para o TransactionForm)
+  // Ação de Categoria
   const handleAddCategoria = async (nome, tipo) => {
     try {
       const response = await api.post('/categorias', { nome, tipo });
@@ -120,43 +122,63 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Dashboard Financeiro</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <span>Olá, <strong>{user.nome}</strong></span>
-          <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e11d48' }}>
-            <LogOut size={20} />
-          </button>
-        </div>
-      </header>
+    <div style={{ 
+      backgroundColor: theme.background, 
+      minHeight: '100vh', 
+      transition: 'background-color 0.3s ease',
+      color: theme.text
+    }}>
+      <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+        
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: theme.text }}>Dashboard Financeiro</h1>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {/* Toggle de Tema */}
+            <button 
+              onClick={toggleTheme} 
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              title={isDarkMode ? "Ativar Modo Claro" : "Ativar Modo Escuro"}
+            >
+              {isDarkMode ? <Sun size={22} color="#fbbf24" /> : <Moon size={22} color="#64748b" />}
+            </button>
 
-      {feedback.mensagem && (
-        <div style={{
-          padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold',
-          backgroundColor: feedback.tipo === 'sucesso' ? '#dcfce7' : '#fee2e2',
-          color: feedback.tipo === 'sucesso' ? '#166534' : '#991b1b',
-          border: `1px solid ${feedback.tipo === 'sucesso' ? '#166534' : '#991b1b'}`
-        }}>
-          {feedback.mensagem}
-        </div>
-      )}
+            <span style={{ color: theme.text }}>Olá, <strong>{user.nome}</strong></span>
+            
+            <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e11d48' }}>
+              <LogOut size={20} />
+            </button>
+          </div>
+        </header>
 
-      <SummaryCards resumo={resumo} />
+        {feedback.mensagem && (
+          <div style={{
+            padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold',
+            backgroundColor: feedback.tipo === 'sucesso' ? '#dcfce7' : '#fee2e2',
+            color: feedback.tipo === 'sucesso' ? '#166534' : '#991b1b',
+            border: `1px solid ${feedback.tipo === 'sucesso' ? '#166534' : '#991b1b'}`,
+            transition: 'all 0.3s ease'
+          }}>
+            {feedback.mensagem}
+          </div>
+        )}
 
-      <TransactionForm 
-        form={form} 
-        setForm={setForm} 
-        categorias={categorias} 
-        onSave={handleSaveTransacao} 
-        onAddCategoria={handleAddCategoria} 
-      />
+        <SummaryCards resumo={resumo} />
 
-      <TransactionTable 
-        transacoes={transacoes} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-      />
+        <TransactionForm 
+          form={form} 
+          setForm={setForm} 
+          categorias={categorias} 
+          onSave={handleSaveTransacao} 
+          onAddCategoria={handleAddCategoria} 
+        />
+
+        <TransactionTable 
+          transacoes={transacoes} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete} 
+        />
+      </div>
     </div>
   );
 };
