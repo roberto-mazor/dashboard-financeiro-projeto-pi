@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LogOut, PlusCircle, ArrowUpCircle, ArrowDownCircle, 
-  DollarSign, Edit, Trash2, CheckCircle 
+  DollarSign, Edit, Trash2, CheckCircle, XCircle 
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -14,7 +14,12 @@ const Dashboard = () => {
   const [categorias, setCategorias] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
   
-  // Estado para o formulário (id_transacao controla se é edição ou criação)
+  // Estados para Nova Categoria
+  const [mostraFormCategoria, setMostraFormCategoria] = useState(false);
+  const [novoNomeCategoria, setNovoNomeCategoria] = useState('');
+  const [tipoCategoria, setTipoCategoria] = useState('despesa');
+
+  // Estado para o formulário de Transação
   const [form, setForm] = useState({
     id_transacao: null, 
     descricao: '',
@@ -53,18 +58,31 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  // Função para Criar Categoria
+  const handleAddCategoria = async () => {
+    if (!novoNomeCategoria) return alert("Digite o nome da categoria");
+    try {
+      const response = await api.post('/categorias', { 
+        nome: novoNomeCategoria, 
+        tipo: tipoCategoria 
+      });
+      setCategorias([...categorias, response.data]);
+      setForm({ ...form, id_categoria: response.data.id_categoria });
+      setNovoNomeCategoria('');
+      setMostraFormCategoria(false);
+    } catch (error) {
+      alert("Erro ao criar categoria: " + (error.response?.data?.error || "Erro de conexão"));
+    }
+  };
+
   const handleSaveTransacao = async (e) => {
     e.preventDefault();
     try {
       if (form.id_transacao) {
-        // MODO EDIÇÃO: Envia PUT para /transacoes/:id
         await api.put(`/transacoes/${form.id_transacao}`, form);
       } else {
-        // MODO CRIAÇÃO: Envia POST
         await api.post('/transacoes', form);
       }
-      
-      // Limpa o formulário e recarrega
       setForm({ id_transacao: null, descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] });
       carregarDados();
     } catch (error) {
@@ -89,7 +107,7 @@ const Dashboard = () => {
       descricao: t.descricao,
       valor: t.valor,
       id_categoria: t.id_categoria,
-      data: t.data.split('T')[0] // Garante formato YYYY-MM-DD para o input date
+      data: t.data.split('T')[0]
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -100,9 +118,9 @@ const Dashboard = () => {
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '40px' },
     card: { padding: '20px', borderRadius: '12px', color: 'white', display: 'flex', flexDirection: 'column', gap: '10px' },
     formContainer: { marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '12px' },
-    form: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
+    form: { display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' },
     input: { padding: '10px', borderRadius: '6px', border: '1px solid #ddd', flex: 1, minWidth: '150px' },
-    button: { padding: '10px 20px', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold', transition: '0.2s' },
+    button: { padding: '10px 20px', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' },
     tableSection: { backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
   };
 
@@ -141,31 +159,40 @@ const Dashboard = () => {
           <input style={styles.input} type="text" placeholder="Descrição" value={form.descricao} onChange={e => setForm({...form, descricao: e.target.value})} required />
           <input style={styles.input} type="number" step="0.01" placeholder="Valor" value={form.valor} onChange={e => setForm({...form, valor: e.target.value})} required />
           <input style={styles.input} type="date" value={form.data} onChange={e => setForm({...form, data: e.target.value})} required />
-          <select style={styles.input} value={form.id_categoria} onChange={e => setForm({...form, id_categoria: e.target.value})} required>
-            <option value="">Categoria...</option>
-            {categorias.map(cat => (
-              <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nome} ({cat.tipo})</option>
-            ))}
-          </select>
-          <button 
-            type="submit" 
-            style={{ 
-              ...styles.button, 
-              backgroundColor: form.id_transacao ? '#f59e0b' : '#2563eb' 
-            }}
-          >
-            {form.id_transacao ? <><CheckCircle size={20} /> Atualizar</> : <><PlusCircle size={20} /> Adicionar</>}
-          </button>
-          {form.id_transacao && (
+          
+          <div style={{ display: 'flex', gap: '5px', flex: 1, minWidth: '200px' }}>
+            <select style={styles.input} value={form.id_categoria} onChange={e => setForm({...form, id_categoria: e.target.value})} required>
+              <option value="">Categoria...</option>
+              {categorias.map(cat => (
+                <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nome} ({cat.tipo})</option>
+              ))}
+            </select>
             <button 
               type="button" 
-              onClick={() => setForm({ id_transacao: null, descricao: '', valor: '', id_categoria: '', data: new Date().toISOString().split('T')[0] })}
-              style={{ ...styles.button, backgroundColor: '#64748b' }}
+              onClick={() => setMostraFormCategoria(!mostraFormCategoria)}
+              style={{ ...styles.button, backgroundColor: '#6366f1', padding: '10px' }}
             >
-              Cancelar
+              <PlusCircle size={20} />
             </button>
-          )}
+          </div>
+
+          <button type="submit" style={{ ...styles.button, backgroundColor: form.id_transacao ? '#f59e0b' : '#2563eb' }}>
+            {form.id_transacao ? <><CheckCircle size={20} /> Atualizar</> : <><PlusCircle size={20} /> Adicionar</>}
+          </button>
         </form>
+
+        {/* Mini Form para Nova Categoria */}
+        {mostraFormCategoria && (
+          <div style={{ marginTop: '15px', padding: '15px', border: '1px dashed #6366f1', borderRadius: '8px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <input style={styles.input} placeholder="Nome da nova categoria" value={novoNomeCategoria} onChange={e => setNovoNomeCategoria(e.target.value)} />
+            <select style={{ ...styles.input, maxWidth: '150px' }} value={tipoCategoria} onChange={e => setTipoCategoria(e.target.value)}>
+              <option value="despesa">Despesa</option>
+              <option value="receita">Receita</option>
+            </select>
+            <button type="button" onClick={handleAddCategoria} style={{ ...styles.button, backgroundColor: '#6366f1' }}>Salvar Categoria</button>
+            <button type="button" onClick={() => setMostraFormCategoria(false)} style={{ ...styles.button, backgroundColor: '#94a3b8' }}><XCircle size={18}/></button>
+          </div>
+        )}
       </section>
 
       {/* Tabela de Transações */}
@@ -201,12 +228,8 @@ const Dashboard = () => {
                     </td>
                     <td style={{ padding: '16px 15px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                        <button onClick={() => handleEdit(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }} title="Editar">
-                          <Edit size={18} />
-                        </button>
-                        <button onClick={() => handleDelete(t.id_transacao)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }} title="Remover">
-                          <Trash2 size={18} />
-                        </button>
+                        <button onClick={() => handleEdit(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }}><Edit size={18}/></button>
+                        <button onClick={() => handleDelete(t.id_transacao)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}><Trash2 size={18}/></button>
                       </div>
                     </td>
                   </tr>
