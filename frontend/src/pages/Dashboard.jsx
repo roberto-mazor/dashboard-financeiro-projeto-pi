@@ -8,24 +8,28 @@ const Dashboard = () => {
   // 1. Hooks de Estado (Sempre no topo da função)
   const [transacoes, setTransacoes] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
+  const [listaTransacoes, setListaTransacoes] = useState([]);
 
   // 2. Lógica do Usuário
   const storedUser = localStorage.getItem('user');
   const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
+  
 
   // 3. Hook de Efeito para buscar dados da API
-  useEffect(() => {
-    const carregarDados = async () => {
-      try {
-        const response = await api.get('/dashboard/resumo');
-        setResumo(response.data); // Ajuste conforme o que sua API retorna
-      } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
-      }
-    };
+ useEffect(() => {
+  const carregarDados = async () => {
+    try {
+      const resResumo = await api.get('/dashboard/resumo');
+      setResumo(resResumo.data);
 
-    carregarDados();
-  }, []);
+      const resLista = await api.get('/transacoes'); // Rota que busca todas
+      setListaTransacoes(resLista.data);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+    }
+  };
+  carregarDados();
+}, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -64,12 +68,38 @@ const Dashboard = () => {
         </div>
       </div>
 
+    <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
+        <thead>
+            <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {listaTransacoes.map(t => (
+            <tr key={t.id} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '10px 0' }}>{t.descricao}</td>
+                <td>{t.categoria?.nome}</td>
+                <td>{new Date(t.data).toLocaleDateString('pt-BR')}</td>
+                <td style={{ color: t.categoria?.tipo === 'receita' ? '#27ae60' : '#e74c3c' }}>
+                {t.categoria?.tipo === 'receita' ? '+' : '-'} R$ {parseFloat(t.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </td>
+            </tr>
+            ))}
+        </tbody>
+    </table>
+
       <section style={{ marginTop: '40px' }}>
         <h2>Últimas Transações</h2>
         <p>Dados vindos de: {import.meta.env.VITE_API_URL}</p>
       </section>
     </div>
   );
+  
 };
+
+
 
 export default Dashboard;
