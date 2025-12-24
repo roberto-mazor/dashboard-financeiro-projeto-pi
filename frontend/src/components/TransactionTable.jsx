@@ -15,7 +15,7 @@ const TransactionTable = ({ transacoes, onEdit, onDelete }) => {
       
       {/* Container com scroll horizontal para Mobile */}
       <div className="overflow-x-auto scrollbar-thin">
-        <table className="w-full border-collapse min-w-[600px]">
+        <table className="w-full border-collapse min-w-150">
           <thead>
             <tr 
               className="text-left border-b-2" 

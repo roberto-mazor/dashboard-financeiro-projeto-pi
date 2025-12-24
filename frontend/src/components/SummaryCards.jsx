@@ -4,56 +4,54 @@ import { useTheme } from '../contexts/ThemeContext';
 const SummaryCards = ({ resumo }) => {
   const { theme } = useTheme();
 
-  const cardStyle = {
-    padding: '20px',
-    borderRadius: '12px',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    transition: 'background-color 0.3s ease',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-  };
+  // Classe base para os cards para evitar repetição
+  const cardClassName = "p-5 rounded-xl text-white flex flex-col gap-2.5 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1";
 
   return (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-      gap: '20px', 
-      marginBottom: '40px' 
-    }}>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+      
       {/* Card Entradas */}
-      <div style={{ ...cardStyle, backgroundColor: theme.cardEntrada }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: '500', opacity: 0.9 }}>Entradas</span>
-          <ArrowUpCircle size={24} />
+      <div 
+        className={cardClassName}
+        style={{ backgroundColor: theme.cardEntrada }}
+      >
+        <div className="flex justify-between items-center">
+          <span className="font-medium opacity-90 text-sm sm:text-base tracking-wide">Entradas</span>
+          <ArrowUpCircle size={24} className="opacity-80" />
         </div>
-        <h2 style={{ fontSize: '28px', margin: 0 }}>
+        <h2 className="text-2xl sm:text-3xl font-bold truncate">
           R$ {resumo.entradas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </h2>
       </div>
 
       {/* Card Saídas */}
-      <div style={{ ...cardStyle, backgroundColor: theme.cardSaida }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: '500', opacity: 0.9 }}>Saídas</span>
-          <ArrowDownCircle size={24} />
+      <div 
+        className={cardClassName}
+        style={{ backgroundColor: theme.cardSaida }}
+      >
+        <div className="flex justify-between items-center">
+          <span className="font-medium opacity-90 text-sm sm:text-base tracking-wide">Saídas</span>
+          <ArrowDownCircle size={24} className="opacity-80" />
         </div>
-        <h2 style={{ fontSize: '28px', margin: 0 }}>
+        <h2 className="text-2xl sm:text-3xl font-bold truncate">
           R$ {resumo.saidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </h2>
       </div>
 
       {/* Card Saldo Total */}
-      <div style={{ ...cardStyle, backgroundColor: theme.cardSaldo }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: '500', opacity: 0.9 }}>Saldo Total</span>
-          <DollarSign size={24} />
+      <div 
+        className={`${cardClassName} md:col-span-2 lg:col-span-1`}
+        style={{ backgroundColor: theme.cardSaldo }}
+      >
+        <div className="flex justify-between items-center">
+          <span className="font-medium opacity-90 text-sm sm:text-base tracking-wide">Saldo Total</span>
+          <DollarSign size={24} className="opacity-80" />
         </div>
-        <h2 style={{ fontSize: '28px', margin: 0 }}>
+        <h2 className="text-2xl sm:text-3xl font-bold truncate">
           R$ {resumo.saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </h2>
       </div>
+
     </div>
   );
 };

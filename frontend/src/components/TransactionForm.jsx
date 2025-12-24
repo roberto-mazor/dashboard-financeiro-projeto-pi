@@ -50,7 +50,7 @@ const TransactionForm = ({
 
       <form onSubmit={onSave} className="flex flex-wrap gap-3 items-center">
         <input 
-          className="flex-1 min-w-[180px] p-2.5 rounded-lg border outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+          className="flex-1 min-w-45 p-2.5 rounded-lg border outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
           style={{ backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }}
           type="text" 
           placeholder="Descrição (ex: Aluguel)" 
