@@ -27,10 +27,6 @@ const Login = () => {
   };
 
   return (
-    /* Ajuste de Viewport: 
-       - Usamos h-full ou min-h-svh aliado ao flex-col no index.css para garantir
-         que o conteúdo ocupe o centro exato da tela disponível.
-    */
     <div 
       className="flex flex-col items-center justify-center flex-1 w-full p-4 transition-colors duration-300"
       style={{ backgroundColor: theme?.background }}
