@@ -8,14 +8,13 @@ const TransactionForm = ({
   categorias, 
   onSave, 
   onAddCategoria,
-  onUpdateCategoria // Certifique-se de passar essa função no Dashboard
+  onUpdateCategoria 
 }) => {
   const { theme, isDarkMode } = useTheme();
   const [mostraPainelCategoria, setMostraPainelCategoria] = useState(false);
   const [novoNomeCategoria, setNovoNomeCategoria] = useState('');
   const [tipoCategoria, setTipoCategoria] = useState('despesa');
   
-  // Estado para edição de categoria existente
   const [editandoCat, setEditandoCat] = useState(null);
   const [nomeEditado, setNomeEditado] = useState('');
 
@@ -33,7 +32,6 @@ const TransactionForm = ({
   };
 
   const salvarEdicao = async (id) => {
-    // Chamada para a nova função de atualização que faremos no dashboard
     const sucesso = await onUpdateCategoria(id, nomeEditado);
     if (sucesso) setEditandoCat(null);
   };
@@ -48,7 +46,7 @@ const TransactionForm = ({
         {form.id_transacao ? 'Editar Transação' : 'Nova Transação'}
       </h3>
 
-      <form onSubmit={onSave} className="flex flex-wrap gap-3 items-center">
+      <form onSubmit={onSave} className="flex flex-wrap lg:flex-nowrap gap-3 items-end">
         <input 
           className="flex-1 min-w-45 p-2.5 rounded-lg border outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
           style={{ backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }}
@@ -95,20 +93,21 @@ const TransactionForm = ({
           <button 
             type="button" 
             onClick={() => setMostraPainelCategoria(!mostraPainelCategoria)}
-            className="p-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-sm active:scale-95"
+            className="p-2.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-all shrink-0"
             title="Gerenciar Categorias"
           >
             <Settings size={22} />
           </button>
         </div>
 
+        {/* w-full para mobile e lg:w-auto para desktop */}
         <button 
           type="submit" 
-          className="p-2.5 px-6 rounded-lg text-white font-bold flex items-center gap-2 shadow-md hover:opacity-90 active:scale-95 transition-all"
+          className="w-full lg:w-auto h-11.5 px-6 rounded-lg text-white font-bold flex items-center justify-center gap-2 shadow-md hover:opacity-90 active:scale-95 transition-all shrink-0 whitespace-nowrap"
           style={{ backgroundColor: form.id_transacao ? '#f59e0b' : '#2563eb' }}
         >
           {form.id_transacao ? <CheckCircle size={20} /> : <PlusCircle size={20} />}
-          {form.id_transacao ? 'Atualizar' : 'Lançar'}
+          <span>{form.id_transacao ? 'Atualizar' : 'Lançar'}</span>
         </button>
       </form>
 
@@ -123,7 +122,6 @@ const TransactionForm = ({
             <button onClick={() => setMostraPainelCategoria(false)}><XCircle size={20} className="text-gray-400 hover:text-red-500" /></button>
           </div>
 
-          {/* Criar Nova */}
           <div className="flex flex-wrap gap-2 mb-6 pb-4 border-b border-gray-700/20">
             <input 
               className="flex-1 p-2 rounded-lg border outline-none text-sm"
@@ -146,7 +144,6 @@ const TransactionForm = ({
             </button>
           </div>
 
-          {/* Lista para Edição */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
             {categorias.map(cat => (
               <div key={cat.id_categoria} className="flex items-center justify-between p-2 rounded-lg bg-black/5 dark:bg-white/5 border border-transparent hover:border-indigo-500/30 transition-all">
