@@ -5,72 +5,83 @@ const TransactionTable = ({ transacoes, onEdit, onDelete }) => {
   const { theme } = useTheme();
 
   return (
-    <section style={{ 
-      backgroundColor: theme.surface, 
-      borderRadius: '12px', 
-      padding: '20px', 
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      transition: 'background-color 0.3s ease, color 0.3s ease'
-    }}>
-      <h3 style={{ marginBottom: '20px', color: theme.text }}>Histórico de Transações</h3>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+    <section 
+      className="p-5 rounded-xl shadow-md transition-all duration-300 border"
+      style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+    >
+      <h3 className="text-lg font-bold mb-5" style={{ color: theme.text }}>
+        Histórico de Transações
+      </h3>
+      
+      {/* Container com scroll horizontal para Mobile */}
+      <div className="overflow-x-auto scrollbar-thin">
+        <table className="w-full border-collapse min-w-[600px]">
           <thead>
-            <tr style={{ 
-              textAlign: 'left', 
-              color: theme.textSecondary, 
-              borderBottom: `2px solid ${theme.border}` 
-            }}>
-              <th style={{ padding: '12px 15px' }}>Descrição</th>
-              <th style={{ padding: '12px 15px' }}>Categoria</th>
-              <th style={{ padding: '12px 15px' }}>Data</th>
-              <th style={{ padding: '12px 15px', textAlign: 'right' }}>Valor</th>
-              <th style={{ padding: '12px 15px', textAlign: 'center' }}>Ações</th>
+            <tr 
+              className="text-left border-b-2" 
+              style={{ color: theme.textSecondary, borderColor: theme.border }}
+            >
+              <th className="p-3.5 font-semibold text-sm">Descrição</th>
+              <th className="p-3.5 font-semibold text-sm">Categoria</th>
+              <th className="p-3.5 font-semibold text-sm">Data</th>
+              <th className="p-3.5 font-semibold text-sm text-right">Valor</th>
+              <th className="p-3.5 font-semibold text-sm text-center">Ações</th>
             </tr>
           </thead>
-          <tbody>
-            {transacoes.map(t => {
+          
+          <tbody className="divide-y" style={{ divideColor: theme.border }}>
+            {transacoes.map((t) => {
               const isEntrada = t.categoria?.tipo?.toLowerCase() === 'receita';
+              
               return (
-                <tr key={t.id_transacao} style={{ borderBottom: `1px solid ${theme.border}` }}>
-                  <td style={{ padding: '16px 15px', color: theme.text, fontWeight: '500' }}>
+                <tr 
+                  key={t.id_transacao} 
+                  className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  style={{ borderBottom: `1px solid ${theme.border}` }}
+                >
+                  <td className="p-4 font-medium text-sm" style={{ color: theme.text }}>
                     {t.descricao}
                   </td>
-                  <td style={{ padding: '16px 15px' }}>
-                    <span style={{ 
-                      backgroundColor: theme.background, 
-                      padding: '4px 10px', 
-                      borderRadius: '6px', 
-                      fontSize: '12px', 
-                      color: theme.textSecondary,
-                      border: `1px solid ${theme.border}`
-                    }}>
+                  
+                  <td className="p-4">
+                    <span 
+                      className="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border"
+                      style={{ 
+                        backgroundColor: theme.background, 
+                        color: theme.textSecondary, 
+                        borderColor: theme.border 
+                      }}
+                    >
                       {t.categoria?.nome || 'Geral'}
                     </span>
                   </td>
-                  <td style={{ padding: '16px 15px', color: theme.textSecondary }}>
+                  
+                  <td className="p-4 text-sm" style={{ color: theme.textSecondary }}>
                     {new Date(t.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                   </td>
-                  <td style={{ 
-                    padding: '16px 15px', 
-                    textAlign: 'right', 
-                    fontWeight: 'bold', 
-                    color: isEntrada ? '#10b981' : '#f43f5e' 
-                  }}>
+                  
+                  <td 
+                    className="p-4 text-sm font-bold text-right" 
+                    style={{ color: isEntrada ? '#10b981' : '#f43f5e' }}
+                  >
                     {isEntrada ? '+ ' : '- '} 
                     R$ {Math.abs(parseFloat(t.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
-                  <td style={{ padding: '16px 15px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  
+                  <td className="p-4">
+                    <div className="flex justify-center gap-3">
                       <button 
                         onClick={() => onEdit(t)} 
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6' }}
+                        className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-all active:scale-90"
+                        title="Editar"
                       >
                         <Edit size={18}/>
                       </button>
+                      
                       <button 
                         onClick={() => onDelete(t.id_transacao)} 
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-all active:scale-90"
+                        title="Excluir"
                       >
                         <Trash2 size={18}/>
                       </button>

@@ -77,7 +77,7 @@ const TransactionForm = ({
           required 
         />
         
-        <div className="flex gap-2 flex-1 min-w-[220px]">
+        <div className="flex gap-2 flex-1 min-w-55">
           <select 
             className="flex-1 p-2.5 rounded-lg border outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
             style={{ backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.border }}
