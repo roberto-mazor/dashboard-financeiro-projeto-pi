@@ -20,113 +20,90 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
     } catch (error) {
-      console.error('Erro no login:', error);
-      alert(error.response?.data?.message || 'Falha ao conectar com o servidor.');
+      alert(error?.response?.data?.message || 'Erro ao conectar.');
     } finally {
       setLoading(false);
     }
   };
 
-  const styles = {
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh',
-      backgroundColor: theme.background,
-      fontFamily: 'Inter, Arial, sans-serif',
-      transition: 'background-color 0.3s ease',
-      position: 'relative'
-    },
-    themeToggle: {
-      position: 'absolute',
-      top: '20px',
-      right: '20px',
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer'
-    },
-    card: {
-      backgroundColor: theme.surface,
-      padding: '2rem',
-      borderRadius: '12px',
-      boxShadow: isDarkMode ? '0 4px 20px rgba(0,0,0,0.5)' : '0 4px 15px rgba(0,0,0,0.1)',
-      width: '90%',
-      maxWidth: '400px',
-      transition: 'background-color 0.3s ease'
-    },
-    input: {
-      width: '100%',
-      padding: '12px',
-      margin: '10px 0',
-      borderRadius: '6px',
-      border: `1px solid ${theme.border}`,
-      backgroundColor: theme.inputBg,
-      color: theme.text,
-      boxSizing: 'border-box',
-      outline: 'none',
-      transition: 'all 0.3s ease'
-    },
-    button: {
-      width: '100%',
-      padding: '12px',
-      backgroundColor: '#2ecc71',
-      color: 'white',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '16px',
-      fontWeight: 'bold',
-      marginTop: '15px',
-      transition: 'opacity 0.2s'
-    }
-  };
-
   return (
-    <div style={styles.container}>
-      {/* Botão de Tema na Tela de Login */}
-      <button onClick={toggleTheme} style={styles.themeToggle} title="Alternar Tema">
-        {isDarkMode ? <Sun size={24} color="#fbbf24" /> : <Moon size={24} color="#64748b" />}
+    /* Ajuste de Viewport: 
+       - Usamos h-full ou min-h-svh aliado ao flex-col no index.css para garantir
+         que o conteúdo ocupe o centro exato da tela disponível.
+    */
+    <div 
+      className="flex flex-col items-center justify-center flex-1 w-full p-4 transition-colors duration-300"
+      style={{ backgroundColor: theme?.background }}
+    >
+      {/* Botão de Tema - Posicionamento fixo para não 'empurrar' o card no mobile */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-6 right-6 p-2.5 rounded-full border transition-all active:scale-90 shadow-sm z-50"
+        style={{ 
+          backgroundColor: theme?.surface, 
+          borderColor: theme?.border,
+          color: theme?.text 
+        }}
+      >
+        {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-500" />}
       </button>
 
-      <div style={styles.card}>
-        <h2 style={{ textAlign: 'center', color: theme.text, marginBottom: '5px' }}>
-          Dashboard Financeiro
-        </h2>
-        <p style={{ textAlign: 'center', color: theme.textSecondary, marginBottom: '25px' }}>
-          Faça login para continuar
-        </p>
-        
-        <form onSubmit={handleLogin}>
-          <label style={{ color: theme.textSecondary, fontSize: '14px' }}>E-mail</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
-            required
-          />
-          <label style={{ color: theme.textSecondary, fontSize: '14px' }}>Senha</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            style={styles.input}
-            required
-          />
-          <button 
-            type="submit" 
-            style={{
-              ...styles.button, 
-              backgroundColor: loading ? theme.textSecondary : '#2ecc71',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
+      {/* Card Principal - Max-w-md garante que não estique demais no Desktop */}
+      <div 
+        className="w-full max-w-[400px] p-6 sm:p-8 rounded-2xl shadow-2xl border transition-all animate-in fade-in zoom-in duration-300"
+        style={{ backgroundColor: theme?.surface, borderColor: theme?.border }}
+      >
+        <header className="mb-8 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: theme?.text }}>
+            Dashboard Financeiro
+          </h2>
+          <p className="text-sm sm:text-base mt-2 opacity-80" style={{ color: theme?.textSecondary }}>
+            Faça login para continuar
+          </p>
+        </header>
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium" style={{ color: theme?.textSecondary }}>E-mail</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-base"
+              style={{ 
+                backgroundColor: theme?.inputBg, 
+                color: theme?.text, 
+                borderColor: theme?.border 
+              }}
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium" style={{ color: theme?.textSecondary }}>Senha</label>
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-base"
+              style={{ 
+                backgroundColor: theme?.inputBg, 
+                color: theme?.text, 
+                borderColor: theme?.border 
+              }}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
             disabled={loading}
+            className="w-full py-3.5 mt-2 rounded-xl font-bold text-white shadow-lg transition-all active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
+            style={{ backgroundColor: '#bb86fc' }}
           >
-            {loading ? 'Entrando...' : 'Acessar Sistema'}
+            {loading ? 'Validando...' : 'Acessar Sistema'}
           </button>
         </form>
       </div>
