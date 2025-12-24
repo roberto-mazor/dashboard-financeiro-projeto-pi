@@ -10,43 +10,40 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionTable from '../components/TransactionTable';
 
 const Dashboard = () => {
-const { theme, isDarkMode, toggleTheme } = useTheme();
-const navigate = useNavigate();
+  const { theme, isDarkMode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
-// Estados de Dados
-const [transacoes, setTransacoes] = useState([]);
-const [categorias, setCategorias] = useState([]);
-const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
+  // Estados de Dados
+  const [transacoes, setTransacoes] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
 
-// Estados de Interface
-const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
-const [form, setForm] = useState({
-  id_transacao: null, 
-  descricao: '',
-  valor: '',
-  id_categoria: '',
-  data: new Date().toISOString().split('T')[0]
-});
+  // Estados de Interface
+  const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
+  const [form, setForm] = useState({
+    id_transacao: null,
+    descricao: '',
+    valor: '',
+    id_categoria: '',
+    data: new Date().toISOString().split('T')[0]
+  });
 
-// Dados do Usuário
-const storedUser = localStorage.getItem('user');
-const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
-// Helper para alertas
+  // Dados do Usuário
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : { nome: 'Usuário' };
 
-const mostrarFeedback = (msg, tipo) => {
-  setFeedback({ mensagem: msg, tipo });
-  setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
-};
+  const mostrarFeedback = (msg, tipo) => {
+    setFeedback({ mensagem: msg, tipo });
+    setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
+  };
 
-// Busca principal de dados
-const carregarDados = async () => {
+  const carregarDados = async () => {
     try {
       const [resResumo, resLista, resCats] = await Promise.all([
         api.get('/dashboard/resumo'),
         api.get('/transacoes'),
         api.get('/categorias')
       ]);
-      
       setResumo(resResumo.data);
       setTransacoes(resLista.data);
       setCategorias(resCats.data);
@@ -61,7 +58,7 @@ const carregarDados = async () => {
   }, []);
 
   // Ações de Transação
-const handleSaveTransacao = async (e) => {
+  const handleSaveTransacao = async (e) => {
     e.preventDefault();
     try {
       if (form.id_transacao) {
@@ -78,7 +75,7 @@ const handleSaveTransacao = async (e) => {
     }
   };
 
-const handleDelete = async (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Deseja excluir este registro?')) {
       try {
         await api.delete(`/transacoes/${id}`);
@@ -90,7 +87,7 @@ const handleDelete = async (id) => {
     }
   };
 
-const handleEdit = (t) => {
+  const handleEdit = (t) => {
     setForm({
       id_transacao: t.id_transacao,
       descricao: t.descricao,
@@ -101,8 +98,8 @@ const handleEdit = (t) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Ação de Categoria
-const handleAddCategoria = async (nome, tipo) => {
+  // Ações de Categoria
+  const handleAddCategoria = async (nome, tipo) => {
     try {
       const response = await api.post('/categorias', { nome, tipo });
       setCategorias([...categorias, response.data]);
@@ -115,50 +112,71 @@ const handleAddCategoria = async (nome, tipo) => {
     }
   };
 
-const handleLogout = () => {
+  // NOVA FUNÇÃO: Atualizar Nome da Categoria
+  const handleUpdateCategoria = async (id, novoNome) => {
+    try {
+      await api.put(`/categorias/${id}`, { nome: novoNome });
+      mostrarFeedback('Categoria renomeada!', 'sucesso');
+      carregarDados(); // Recarrega para atualizar a tabela e o form
+      return true;
+    } catch (error) {
+      mostrarFeedback('Erro ao atualizar categoria', 'erro');
+      return false;
+    }
+  };
+
+  const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/');
   };
 
   return (
-    <div style={{ 
-      backgroundColor: theme.background, 
-      minHeight: '100vh', 
-      transition: 'background-color 0.3s ease',
-      color: theme.text
-    }}>
-      <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+    <div 
+      className="min-h-screen transition-colors duration-300 flex flex-col"
+      style={{ backgroundColor: theme.background }}
+    >
+      <div className="w-full max-w-300 mx-auto p-4 sm:p-8 flex-1">
         
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: theme.text }}>Dashboard Financeiro</h1>
+        {/* Header Responsivo */}
+        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: theme.text }}>
+            Dashboard Financeiro
+          </h1>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            {/* Toggle de Tema */}
+          <div className="flex items-center gap-4 sm:gap-6">
             <button 
               onClick={toggleTheme} 
-              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-              title={isDarkMode ? "Ativar Modo Claro" : "Ativar Modo Escuro"}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              title={isDarkMode ? "Modo Claro" : "Modo Escuro"}
             >
-              {isDarkMode ? <Sun size={22} color="#fbbf24" /> : <Moon size={22} color="#64748b" />}
+              {isDarkMode ? <Sun size={22} className="text-amber-400" /> : <Moon size={22} className="text-slate-500" />}
             </button>
 
-            <span style={{ color: theme.text }}>Olá, <strong>{user.nome}</strong></span>
+            <span className="text-sm sm:text-base" style={{ color: theme.text }}>
+              Olá, <strong className="font-semibold">{user.nome}</strong>
+            </span>
             
-            <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e11d48' }}>
+            <button 
+              onClick={handleLogout} 
+              className="flex items-center gap-1 text-red-500 hover:text-red-600 font-medium transition-colors"
+            >
               <LogOut size={20} />
+              <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </header>
 
+        {/* Feedback Alert */}
         {feedback.mensagem && (
-          <div style={{
-            padding: '15px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold',
-            backgroundColor: feedback.tipo === 'sucesso' ? '#dcfce7' : '#fee2e2',
-            color: feedback.tipo === 'sucesso' ? '#166534' : '#991b1b',
-            border: `1px solid ${feedback.tipo === 'sucesso' ? '#166534' : '#991b1b'}`,
-            transition: 'all 0.3s ease'
-          }}>
+          <div 
+            className={`p-4 mb-6 rounded-xl text-center font-bold border transition-all animate-in fade-in slide-in-from-top-2`}
+            style={{
+              backgroundColor: feedback.tipo === 'sucesso' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
+              color: feedback.tipo === 'sucesso' ? '#10b981' : '#f43f5e',
+              borderColor: feedback.tipo === 'sucesso' ? '#10b981' : '#f43f5e'
+            }}
+          >
             {feedback.mensagem}
           </div>
         )}
@@ -170,7 +188,8 @@ const handleLogout = () => {
           setForm={setForm} 
           categorias={categorias} 
           onSave={handleSaveTransacao} 
-          onAddCategoria={handleAddCategoria} 
+          onAddCategoria={handleAddCategoria}
+          onUpdateCategoria={handleUpdateCategoria} // Passando a nova função
         />
 
         <TransactionTable 
