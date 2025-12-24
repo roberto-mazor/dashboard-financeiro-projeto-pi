@@ -50,7 +50,7 @@ const Login = () => {
 
       {/* Card Principal - Max-w-md garante que não estique demais no Desktop */}
       <div 
-        className="w-full max-w-[400px] p-6 sm:p-8 rounded-2xl shadow-2xl border transition-all animate-in fade-in zoom-in duration-300"
+        className="w-full max-w-100 p-6 sm:p-8 rounded-2xl shadow-2xl border transition-all animate-in fade-in zoom-in duration-300"
         style={{ backgroundColor: theme?.surface, borderColor: theme?.border }}
       >
         <header className="mb-8 text-center">
