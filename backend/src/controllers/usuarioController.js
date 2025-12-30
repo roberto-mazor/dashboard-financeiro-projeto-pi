@@ -1,6 +1,6 @@
 // src/controllers/usuarioController.js
 const Usuario = require('../models/Usuario');
-const Categoria = require('../models/Categoria'); // Importe o modelo de Categoria
+const Categoria = require('../models/Categoria');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -25,22 +25,29 @@ exports.registrar = async (req, res) => {
             senha_hash
         });
 
-        // Criar categorias padrão para o novo usuário
-        await Categoria.bulkCreate([
-            { id_usuario: novoUsuario.id_usuario, nome: 'Alimentação', tipo: 'despesa' },
-            { id_usuario: novoUsuario.id_usuario, nome: 'Salário', tipo: 'receita' },
-            { id_usuario: novoUsuario.id_usuario, nome: 'Lazer', tipo: 'despesa' },
-            { id_usuario: novoUsuario.id_usuario, nome: 'Educação', tipo: 'despesa' },
-            { id_usuario: novoUsuario.id_usuario, nome: 'Investimentos', tipo: 'receita' }
-        ]);
+        // 🚀 PROTEÇÃO: Criar categorias padrão dentro de um try/catch isolado
+        // Isso evita que um erro bobo de DB aborte todo o registro do usuário
+        try {
+            await Categoria.bulkCreate([
+                { id_usuario: novoUsuario.id_usuario, nome: 'Alimentação', tipo: 'despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Salário', tipo: 'receita' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Lazer', tipo: 'despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Educação', tipo: 'despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Investimentos', tipo: 'receita' }
+            ]);
+            console.log(`Categorias criadas para o usuário: ${novoUsuario.id_usuario}`);
+        } catch (catError) {
+            console.error('Falha ao criar categorias iniciais, mas o usuário foi registrado:', catError);
+            // Não enviamos erro 500 aqui para o usuário conseguir logar mesmo assim
+        }
 
         res.status(201).json({ 
             message: 'Usuário criado com sucesso!', 
             id: novoUsuario.id_usuario 
         });
     } catch (error) {
-        console.error('Erro no registro:', error);
-        res.status(500).json({ error: 'Erro ao registrar usuário.' });
+        console.error('Erro fatal no registro:', error);
+        res.status(500).json({ error: 'Erro interno ao processar o cadastro.' });
     }
 };
 
@@ -48,19 +55,16 @@ exports.login = async (req, res) => {
     try {
         const { email, senha } = req.body;
 
-        // 1. Buscar usuário
         const usuario = await Usuario.findOne({ where: { email } });
         if (!usuario) {
             return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
         }
 
-        // 2. Verificar senha
         const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
         if (!senhaValida) {
             return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
         }
 
-        // 3. Gerar Token JWT
         const token = jwt.sign(
             { id: usuario.id_usuario }, 
             process.env.JWT_SECRET, 
@@ -70,7 +74,7 @@ exports.login = async (req, res) => {
         res.json({
             message: 'Login realizado com sucesso!',
             token,
-            user: { id: usuario.id_usuario, nome: usuario.nome } // Alterado para 'user' para bater com o localStorage.setItem('user', ...)
+            user: { id: usuario.id_usuario, nome: usuario.nome }
         });
     } catch (error) {
         console.error('Erro no login:', error);
