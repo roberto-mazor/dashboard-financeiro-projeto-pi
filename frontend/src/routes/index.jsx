@@ -1,25 +1,24 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/Login';
+import Register from '../pages/Register'; 
 import Dashboard from '../pages/Dashboard';
 
 const AppRoutes = () => {
   const estaAutenticado = !!localStorage.getItem('token');
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        
-        {/* Rota Protegida: Só acessa se tiver token */}
-        <Route 
-          path="/dashboard" 
-          element={estaAutenticado ? <Dashboard /> : <Navigate to="/" />} 
-        />
-        
-        {/* Redireciona qualquer rota inexistente para o login */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      
+      <Route 
+        path="/dashboard" 
+        element={estaAutenticado ? <Dashboard /> : <Navigate to="/login" />} 
+      />
+      
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
   );
 };
 
