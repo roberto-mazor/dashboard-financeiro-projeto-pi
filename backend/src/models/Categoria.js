@@ -22,7 +22,7 @@ const Categoria = sequelize.define('Categoria', {
     allowNull: false,
     references: {
       model: 'usuarios',
-      key: 'id'
+      key: 'id_usuario'
     }
   }
 }, {

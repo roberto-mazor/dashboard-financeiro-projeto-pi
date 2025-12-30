@@ -29,11 +29,11 @@ exports.registrar = async (req, res) => {
         // Isso evita que um erro bobo de DB aborte todo o registro do usuário
         try {
             await Categoria.bulkCreate([
-                { id_usuario: novoUsuario.id_usuario, nome: 'Alimentação', tipo: 'despesa' },
-                { id_usuario: novoUsuario.id_usuario, nome: 'Salário', tipo: 'receita' },
-                { id_usuario: novoUsuario.id_usuario, nome: 'Lazer', tipo: 'despesa' },
-                { id_usuario: novoUsuario.id_usuario, nome: 'Educação', tipo: 'despesa' },
-                { id_usuario: novoUsuario.id_usuario, nome: 'Investimentos', tipo: 'receita' }
+                { id_usuario: novoUsuario.id_usuario, nome: 'Alimentação', tipo: 'Despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Salário', tipo: 'Receita' },    
+                { id_usuario: novoUsuario.id_usuario, nome: 'Lazer', tipo: 'Despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Educação', tipo: 'Despesa' },
+                { id_usuario: novoUsuario.id_usuario, nome: 'Investimentos', tipo: 'Receita' }
             ]);
             console.log(`Categorias criadas para o usuário: ${novoUsuario.id_usuario}`);
         } catch (catError) {
