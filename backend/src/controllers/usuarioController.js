@@ -1,5 +1,6 @@
 // src/controllers/usuarioController.js
 const Usuario = require('../models/Usuario');
+const Categoria = require('../models/Categoria'); // Importe o modelo de Categoria
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -17,15 +18,28 @@ exports.registrar = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const senha_hash = await bcrypt.hash(senha, salt);
 
-        // 3. Criar o usuário no banco
+        // 3. Criar o usuário no banco (Neon PostgreSQL)
         const novoUsuario = await Usuario.create({
             nome,
             email,
             senha_hash
         });
 
-        res.status(201).json({ message: 'Usuário criado com sucesso!', id: novoUsuario.id_usuario });
+        // Criar categorias padrão para o novo usuário
+        await Categoria.bulkCreate([
+            { id_usuario: novoUsuario.id_usuario, nome: 'Alimentação', tipo: 'despesa' },
+            { id_usuario: novoUsuario.id_usuario, nome: 'Salário', tipo: 'receita' },
+            { id_usuario: novoUsuario.id_usuario, nome: 'Lazer', tipo: 'despesa' },
+            { id_usuario: novoUsuario.id_usuario, nome: 'Educação', tipo: 'despesa' },
+            { id_usuario: novoUsuario.id_usuario, nome: 'Investimentos', tipo: 'receita' }
+        ]);
+
+        res.status(201).json({ 
+            message: 'Usuário criado com sucesso!', 
+            id: novoUsuario.id_usuario 
+        });
     } catch (error) {
+        console.error('Erro no registro:', error);
         res.status(500).json({ error: 'Erro ao registrar usuário.' });
     }
 };
@@ -50,15 +64,16 @@ exports.login = async (req, res) => {
         const token = jwt.sign(
             { id: usuario.id_usuario }, 
             process.env.JWT_SECRET, 
-            { expiresIn: '1d' } // Expira em 1 dia
+            { expiresIn: '1d' }
         );
 
         res.json({
             message: 'Login realizado com sucesso!',
             token,
-            usuario: { id: usuario.id_usuario, nome: usuario.nome }
+            user: { id: usuario.id_usuario, nome: usuario.nome } // Alterado para 'user' para bater com o localStorage.setItem('user', ...)
         });
     } catch (error) {
+        console.error('Erro no login:', error);
         res.status(500).json({ error: 'Erro ao realizar login.' });
     }
 };
