@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Sun, Moon } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Sun, Moon, Sparkles, UserPlus } from 'lucide-react';
 import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -12,7 +12,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     try {
       const response = await api.post('/auth/login', { email, senha });
@@ -20,18 +20,24 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
     } catch (error) {
-      alert(error?.response?.data?.message || 'Erro ao conectar.');
+      alert(error?.response?.data?.message || 'Erro ao conectar. Verifique suas credenciais.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Função para unir a Opção 1 e 2: Preenche e ilustra
+  const handleRecrutadorDemo = () => {
+    setEmail('recrutador@demo.com');
+    setSenha('123456');
+    // Pequeno feedback visual ou delay antes de entrar pode ser bom
+  };
+
   return (
     <div 
-      className="flex flex-col items-center justify-center flex-1 w-full p-4 transition-colors duration-300"
+      className="flex flex-col items-center justify-center flex-1 w-full min-h-screen p-4 transition-colors duration-300"
       style={{ backgroundColor: theme?.background }}
     >
-      {/* Botão de Tema - Posicionamento fixo para não 'empurrar' o card no mobile */}
       <button
         onClick={toggleTheme}
         className="fixed top-6 right-6 p-2.5 rounded-full border transition-all active:scale-90 shadow-sm z-50"
@@ -44,17 +50,16 @@ const Login = () => {
         {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-500" />}
       </button>
 
-      {/* Card Principal - Max-w-md garante que não estique demais no Desktop */}
       <div 
-        className="w-full max-w-100 p-6 sm:p-8 rounded-2xl shadow-2xl border transition-all animate-in fade-in zoom-in duration-300"
+        className="w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-2xl border transition-all animate-in fade-in zoom-in duration-300"
         style={{ backgroundColor: theme?.surface, borderColor: theme?.border }}
       >
         <header className="mb-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: theme?.text }}>
             Dashboard Financeiro
           </h2>
-          <p className="text-sm sm:text-base mt-2 opacity-80" style={{ color: theme?.textSecondary }}>
-            Faça login para continuar
+          <p className="text-sm mt-2 opacity-80" style={{ color: theme?.textSecondary }}>
+            Gestão inteligente de finanças pessoais
           </p>
         </header>
 
@@ -66,11 +71,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-base"
-              style={{ 
-                backgroundColor: theme?.inputBg, 
-                color: theme?.text, 
-                borderColor: theme?.border 
-              }}
+              style={{ backgroundColor: theme?.inputBg, color: theme?.text, borderColor: theme?.border }}
               placeholder="seu@email.com"
               required
             />
@@ -83,11 +84,7 @@ const Login = () => {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-purple-500/50 transition-all text-base"
-              style={{ 
-                backgroundColor: theme?.inputBg, 
-                color: theme?.text, 
-                borderColor: theme?.border 
-              }}
+              style={{ backgroundColor: theme?.inputBg, color: theme?.text, borderColor: theme?.border }}
               placeholder="••••••••"
               required
             />
@@ -96,12 +93,43 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 rounded-xl font-bold text-white shadow-lg transition-all active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
+            className="w-full py-3.5 mt-2 rounded-xl font-bold text-white shadow-lg transition-all active:scale-[0.98] hover:brightness-110 disabled:opacity-50 flex justify-center items-center gap-2"
             style={{ backgroundColor: '#bb86fc' }}
           >
             {loading ? 'Validando...' : 'Acessar Sistema'}
           </button>
         </form>
+
+        {/* ÁREA DE ACESSO RÁPIDO E REGISTRO */}
+        <div className="mt-8 pt-6 border-t border-gray-700/20 flex flex-col items-center gap-4">
+          
+          <button 
+            onClick={handleRecrutadorDemo}
+            className="flex items-center gap-2 text-sm font-semibold transition-colors hover:opacity-80"
+            style={{ color: '#bb86fc' }}
+          >
+            <Sparkles size={16} />
+            Preencher dados de teste (Recrutador)
+          </button>
+
+          <div className="text-sm flex flex-col items-center gap-1" style={{ color: theme?.textSecondary }}>
+            <span>Novo por aqui?</span>
+            <Link 
+              to="/register" 
+              className="font-bold flex items-center gap-1 hover:underline"
+              style={{ color: theme?.text }}
+            >
+              <UserPlus size={16} />
+              Criar uma conta nova
+            </Link>
+          </div>
+
+          <div className="mt-2 text-center">
+            <p className="text-[10px] uppercase tracking-widest opacity-40 font-bold" style={{ color: theme?.text }}>
+              Powered by Neon PostgreSQL
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
