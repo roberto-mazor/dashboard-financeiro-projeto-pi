@@ -139,7 +139,15 @@ const TransactionForm = ({
               <option value="despesa">Despesa</option>
               <option value="receita">Receita</option>
             </select>
-            <button onClick={handleCreateCategoria} className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors">
+            <button
+              onClick={handleCreateCategoria}
+              className="text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md disabled:opacity-50"
+              style={{
+                backgroundColor: '#2563eb', // azul equivalente ao bg-blue-600
+                minWidth: '80px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
               Criar
             </button>
           </div>
