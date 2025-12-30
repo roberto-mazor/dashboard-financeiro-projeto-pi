@@ -1,3 +1,68 @@
+# 📊 Dashboard Financeiro Inteligente
+
+Sistema completo de gestão financeira pessoal com visualização de dados em tempo real, suporte a temas (**Light/Dark**) e persistência de dados em nuvem.
+
+## 🚀 Diferenciais de UX para Recrutadores
+Para facilitar a sua avaliação, implementei estratégias que removem barreiras de acesso:
+
+* **Acesso Rápido (Modo Demo):** No login, utilize o botão *"Preencher dados de teste"* para entrar instantaneamente com um perfil preenchido.
+* **Semente de Dados Automática:** Ao criar uma conta nova, o sistema gera automaticamente categorias padrão (Alimentação, Salário, Lazer) para que você possa testar os gráficos de imediato.
+* **Interface Adaptável:** Suporte completo a Modo Escuro com gráficos que ajustam legendas e eixos dinamicamente.
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### **Frontend**
+* **React.js (Vite):** Estrutura de SPA rápida e moderna.
+* **Tailwind CSS:** Estilização responsiva e sistema de temas.
+* **MUI X Charts:** Visualização de dados avançada com gráficos de pizza e barras.
+* **Lucide React:** Conjunto de ícones leves e elegantes.
+* **Axios:** Consumo de API.
+
+### **Backend**
+* **Node.js & Express:** API REST robusta.
+* **JWT (JSON Web Token):** Autenticação segura de usuários.
+* **Bcrypt.js:** Criptografia de senhas.
+* **Sequelize (ORM):** Gerenciamento e abstração de consultas SQL.
+
+### **Banco de Dados & Infra**
+* **PostgreSQL (Neon.tech):** Banco de dados relacional hospedado em nuvem (Serverless).
+
+---
+
+## 📈 Funcionalidades Principais
+
+* **Gestão de Transações:** Fluxo completo de Entradas e Saídas com histórico detalhado.
+* **Gerenciamento de Categorias:** Personalização de categorias por usuário com cores e tipos específicos.
+* **Análise Visual:** Gráfico de distribuição de despesas por categoria e comparativo de balanço mensal.
+* **Cálculo de Saldo Real:** Monitoramento dinâmico de entradas, saídas e saldo total.
+
+---
+
+## ⚙️ Como rodar o projeto
+
+### **1. Clonar o repositório**
+```bash
+git clone [https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git](https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git)
+
+### **2. Configurar o Backend**
+
+1. Entre na pasta `server`:
+   ```bash
+   cd server
+   ```
+ ### **2. Crie um arquivo .env com suas credenciais do Neon PostgreSQL e uma JWT_SECRET.**
+
+### 3. Instale as dependências:
+    ```bash
+    npm install
+    ```
+### 4. Inicie o servidor:
+    ```bash
+    npm run dev
+    ```
+
 # dashboard-financeiro-projeto-pi
 
 # 📄 Documentação do Projeto: Dashboard Financeiro Pessoal
