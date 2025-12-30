@@ -14,7 +14,10 @@ const Register = () => {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
+if (e) {
     e.preventDefault();
+    e.stopPropagation();
+  }
     setLoading(true);
 
     try {
