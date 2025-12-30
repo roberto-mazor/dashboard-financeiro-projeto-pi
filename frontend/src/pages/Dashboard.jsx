@@ -8,6 +8,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import SummaryCards from '../components/SummaryCards';
 import TransactionForm from '../components/TransactionForm';
 import TransactionTable from '../components/TransactionTable';
+import DashboardCharts from '../components/DashboardCharts';
+
 
 const Dashboard = () => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
@@ -182,7 +184,7 @@ const Dashboard = () => {
         )}
 
         <SummaryCards resumo={resumo} />
-
+        <DashboardCharts transacoes={transacoes} />
         <TransactionForm 
           form={form} 
           setForm={setForm} 
@@ -191,7 +193,7 @@ const Dashboard = () => {
           onAddCategoria={handleAddCategoria}
           onUpdateCategoria={handleUpdateCategoria} // Passando a nova função
         />
-
+        
         <TransactionTable 
           transacoes={transacoes} 
           onEdit={handleEdit} 
