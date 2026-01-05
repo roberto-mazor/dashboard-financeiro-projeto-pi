@@ -195,7 +195,7 @@ O backend segue os princípios RESTful, com rotas protegidas por autenticação 
 
 ## 🗄️ Modelagem de Dados (DER)
 
-![Diagrama Entidade-Relacionamento](frontend/public/der_dashboard_financeiro.svg)
+![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
 
 A estrutura do banco de dados foi projetada para garantir o isolamento total dos dados por usuário e a integridade referencial entre transações e categorias.
 
@@ -214,3 +214,26 @@ A estrutura do banco de dados foi projetada para garantir o isolamento total dos
 * **Relacionamento 1:N (Usuário ⮕ Transações/Categorias):** Garante que cada usuário visualize apenas seus próprios dados, filtrados rigorosamente pelo `id_usuario` no backend.
 * **Relacionamento 1:N (Categoria ⮕ Transações):** Permite a agregação de dados para a geração de inteligência visual (ex: Gráficos de Pizza/Donut).
 * **Exclusão em Cascata (ON DELETE CASCADE):** Configurado para que, caso um usuário remova sua conta, todos os registros relacionados sejam apagados automaticamente, garantindo a limpeza do banco **Neon PostgreSQL** e conformidade com privacidade de dados.
+
+---
+
+## 📋 Requisitos Funcionais e Casos de Uso (UML)
+
+O sistema foi modelado para oferecer uma experiência fluida, utilizando padrões de interação que automatizam processos de backend e facilitam o onboarding do usuário.
+
+![Requisitos Funcionais e Casos de Uso (UML)](public/uml_dashboard_financeiro.svg)
+
+### **Detalhamento das Funcionalidades**
+
+#### **1. Fluxo de Autenticação e Onboarding**
+* **Cadastrar Conta:** Ao realizar o registro, o sistema executa automaticamente a criação de categorias padrão através de uma relação de `<<include>>`, garantindo que o usuário possua estrutura imediata para lançamentos.
+* **Fazer Login:** Acesso seguro às rotas protegidas através de validação de **Token JWT** no backend.
+* **Preencher Dados Demo:** Funcionalidade de `<<extend>>` no login, projetada estrategicamente para que recrutadores visualizem o dashboard populado instantaneamente, removendo a fricção do cadastro manual.
+
+#### **2. Gestão Financeira e Visualização**
+* **Visualizar Dashboard:** Centralização de informações consumindo dados processados pelo **MUI X Charts**, permitindo análise de saldos e distribuições.
+* **Gerenciar Transações:** Controle total (**CRUD**) sobre entradas e saídas financeiras para manutenção do histórico pessoal.
+* **Criar Categorias:** Além das sementes automáticas, o usuário possui autonomia para personalizar novas categorias de gasto ou receita.
+
+#### **3. Personalização de Interface**
+* **Alternar Tema (Light/Dark):** Implementação via `ThemeContext` que permite a mudança global da estética, ajustando dinamicamente as cores dos gráficos e componentes para manter a legibilidade em qualquer modo.
