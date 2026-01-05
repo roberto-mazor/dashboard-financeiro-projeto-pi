@@ -90,7 +90,7 @@ git clone [https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git](h
     ```bash
     npm run dev
     ```
-
+---
 # dashboard-financeiro-projeto-pi
 
 # 📄 Documentação do Projeto: Dashboard Financeiro Pessoal
