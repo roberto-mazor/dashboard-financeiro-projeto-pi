@@ -193,21 +193,24 @@ O backend segue os princípios RESTful, com rotas protegidas por autenticação 
 ---
 
 
+## 🗄️ Modelagem de Dados (DER)
 
-## 🚀 Próximas Etapas (Ordem de Implementação Sugerida)
+[DER](#frontend/public/der_dashboard_financeiro.svg)(Diagrama Entidade-Relacionamento)
 
-Sugiro a seguinte ordem para construir o projeto de forma lógica:
+A estrutura do banco de dados foi projetada para garantir o isolamento total dos dados por usuário e a integridade referencial entre transações e categorias.
 
-1. **Configuração de Ambiente:** Configurar o projeto React/Vite e Node/Express. Instalar o ORM e bibliotecas iniciais.
+### **Dicionário de Dados**
 
-2. **Banco de Dados & ORM:** Criar as tabelas SQL e definir os models no ORM (`src/models`).
+* **Tabela `usuarios`:** Armazena as informações de perfil e credenciais criptografadas (hash) para autenticação segura via JWT.
+* **Tabela `categorias`:** Define as classificações financeiras.
+    * **Inteligência de Registro:** No momento do cadastro, o sistema executa um `bulkCreate` para gerar categorias padrão (Alimentação, Salário, Lazer) vinculadas ao novo `id_usuario`.
+    * **Campo `tipo`:** Atua como um `ENUM` para validar se a categoria pertence ao fluxo de **Receita** ou **Despesa**.
+* **Tabela `transacoes`:** O núcleo financeiro do sistema. Armazena valores decimais, datas e descrições, vinculando-se obrigatoriamente a uma categoria e a um usuário.
 
-3. **Autenticação (Backend):** Implementar as rotas `/api/auth/cadastro` e `/api/auth/login`. Criar o `authMiddleware.js` para proteger rotas.
 
-4. **Autenticação (Frontend):** Criar as telas de Login/Cadastro e implementar a lógica de armazenamento de JWT.
 
-5. **CRUD Básico (Backend):** Implementar o CRUD completo para a tabela `Transacoes`.
+### **Regras de Negócio e Relacionamentos**
 
-6. **Layout (Frontend):** Construir o Layout Principal, a Sidebar de navegação e as telas vazias das rotas protegidas (`/dashboard`, `/transacoes`).
-
-7. **Dashboard Principal:** Integrar a leitura de transações (GET) e exibir os primeiros gráficos e resumos.
+* **Relacionamento 1:N (Usuário ⮕ Transações/Categorias):** Garante que cada usuário visualize apenas seus próprios dados, filtrados rigorosamente pelo `id_usuario` no backend.
+* **Relacionamento 1:N (Categoria ⮕ Transações):** Permite a agregação de dados para a geração de inteligência visual (ex: Gráficos de Pizza/Donut).
+* **Exclusão em Cascata (ON DELETE CASCADE):** Configurado para que, caso um usuário remova sua conta, todos os registros relacionados sejam apagados automaticamente, garantindo a limpeza do banco **Neon PostgreSQL** e conformidade com privacidade de dados.
