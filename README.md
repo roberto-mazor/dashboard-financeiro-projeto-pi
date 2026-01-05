@@ -40,6 +40,34 @@ Para facilitar a sua avaliação, implementei estratégias que removem barreiras
 
 ---
 
+## 🖼️ Estrutura de Wireframe (Esqueleto da Interface)
+
+A interface foi projetada seguindo princípios de **Hierarchy of Information** (Hierarquia de Informação) e **User Flow** intuitivo.
+
+### **1. Tela de Login / Cadastro**
+* **Central Card:** Um contêiner centralizado para foco total no usuário.
+* **Campos de Input:** Espaços otimizados para Nome (no registro), E-mail e Senha.
+* **Primary Button:** Botão de ação principal com cor sólida para "Entrar" ou "Finalizar Cadastro".
+* **Demo Access:** Link destacado para *"Preencher dados de teste"*, reduzindo drasticamente a fricção de entrada para avaliadores.
+
+### **2. Dashboard Principal (Visão Geral)**
+* **Sidebar (Esquerda):** Menu vertical contendo ícones de Navegação (Dashboard, Transações, Sair).
+* **Header (Topo):** Título da seção e botão de alternância de Tema (**Sun/Moon**).
+* **Grid de Cards (Topo):** Três blocos horizontais de leitura rápida:
+    * **Saldo Total:** Valor central em destaque.
+    * **Entradas:** Indicador visual positivo (verde).
+    * **Saídas:** Indicador visual negativo (vermelho).
+* **Área de Gráficos (Centro):**
+    * *Lado Esquerdo:* Gráfico de Pizza (Donut) para Distribuição de Categorias.
+    * *Lado Direito:* Gráfico de Barras para Resumo Mensal (Entradas vs Saídas).
+
+### **3. Gestão de Transações e Categorias**
+* **Formulário de Lançamento:** Inputs rápidos para Descrição, Valor, Data e Categoria.
+* **Seção Expansível (Categorias):** Box com borda pontilhada contendo input para nova categoria e seletor de tipo.
+* **Tabela de Histórico (Rodapé):** Lista detalhada com colunas para Descrição, Categoria, Data, Valor e Ações (Editar/Excluir).
+
+---
+
 ## ⚙️ Como rodar o projeto
 
 ### **1. Clonar o repositório**
