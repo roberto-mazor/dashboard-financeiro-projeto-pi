@@ -133,6 +133,39 @@ Este projeto visa a criação de um Dashboard Financeiro Pessoal completo para p
 
 2. **Conflito:** No arquivo principal (ex: `App.jsx`), utilizar o componente `<StyledEngineProvider injectFirst>` do MUI para garantir que as classes Tailwind tenham precedência sobre os estilos padrão do Material UI, permitindo a customização visual.
 
+## 📝 Documentação da API (REST)
+
+O backend segue os princípios RESTful, com rotas protegidas por autenticação via JWT.
+
+### **1. Autenticação (Auth)**
+
+| Método | Endpoint | Descrição | Requisitos |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Cria um novo usuário e gera 5 categorias iniciais. | `nome`, `email`, `senha` |
+| **POST** | `/api/auth/login` | Autentica o usuário e retorna o Token JWT. | `email`, `senha` |
+
+### **2. Transações (Transactions)**
+
+> 🔐 Todas as rotas abaixo exigem o Header `Authorization: Bearer <token>`.
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| **GET** | `/api/transacoes` | Retorna todas as transações do usuário logado. |
+| **POST** | `/api/transacoes` | Cria uma nova transação (Entrada ou Saída). |
+| **PUT** | `/api/transacoes/:id` | Atualiza os dados de uma transação específica. |
+| **DELETE** | `/api/transacoes/:id` | Remove uma transação permanentemente. |
+
+### **3. Categorias (Categories)**
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| **GET** | `/api/categorias` | Lista as categorias personalizadas do usuário. |
+| **POST** | `/api/categorias` | Cria uma nova categoria com nome e tipo (Receita/Despesa). |
+
+---
+
+
+
 ## 🚀 Próximas Etapas (Ordem de Implementação Sugerida)
 
 Sugiro a seguinte ordem para construir o projeto de forma lógica:
