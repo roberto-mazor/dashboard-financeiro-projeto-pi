@@ -195,9 +195,9 @@ O backend segue os princípios RESTful, com rotas protegidas por autenticação 
 
 ## 🗄️ Modelagem de Dados (DER)
 
-![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
-
 A estrutura do banco de dados foi projetada para garantir o isolamento total dos dados por usuário e a integridade referencial entre transações e categorias.
+
+![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
 
 ### **Dicionário de Dados**
 
