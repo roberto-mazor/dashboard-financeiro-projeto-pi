@@ -2,6 +2,16 @@
 
 Sistema completo de gestão financeira pessoal com visualização de dados em tempo real, suporte a temas (**Light/Dark**) e persistência de dados em nuvem.
 
+## ⚡ Otimização de Performance (Anti-Cold Start)
+
+Este projeto utiliza o **Neon PostgreSQL**, um banco de dados *serverless* que entra em modo de repouso após períodos de inatividade para otimização de recursos. 
+
+Para garantir uma experiência fluida e sem atrasos para recrutadores e usuários, implementei uma estratégia de **Wake-up Call**:
+
+* **Antecipação de Latência:** Assim que a tela de login é carregada, o frontend dispara uma requisição silenciosa para o endpoint `/api/auth/health`.
+* **Aquecimento de Instância:** Essa chamada "acorda" a instância do banco de dados enquanto o usuário ainda está preenchendo suas credenciais, eliminando a percepção de espera no momento do clique.
+* **Feedback Visual:** Todos os botões de ação possuem estados de carregamento (*loading states*) para fornecer feedback imediato e evitar múltiplos disparos durante o processamento de dados.
+
 ## 🚀 Diferenciais de UX para Recrutadores
 Para facilitar a sua avaliação, implementei estratégias que removem barreiras de acesso:
 
