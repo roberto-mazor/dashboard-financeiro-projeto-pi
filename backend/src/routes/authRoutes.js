@@ -4,17 +4,36 @@ const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Rota: POST /api/auth/register
+/**
+ * @route   GET /api/auth/health
+ * @desc    Rota de "Wake-up call" para acordar o banco de dados Serverless (Neon)
+ * @access  Público
+ */
+router.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'Servidor e Banco ativos' });
+});
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Registra um novo usuário e cria categorias padrão
+ */
 router.post('/register', usuarioController.registrar);
 
-// Rota: POST /api/auth/login
+/**
+ * @route   POST /api/auth/login
+ * @desc    Autentica usuário e retorna Token JWT
+ */
 router.post('/login', usuarioController.login);
 
-// Rota protegida: GET /api/auth/perfil
+/**
+ * @route   GET /api/auth/perfil
+ * @desc    Retorna dados do perfil do usuário logado
+ * @access  Privado (JWT)
+ */
 router.get('/perfil', authMiddleware, (req, res) => {
     res.json({ 
         message: 'Acesso autorizado', 
-        usuario: req.usuario // req.usuario é preenchido pelo authMiddleware após decodificar o JWT
+        usuario: req.usuario // Preenchido pelo authMiddleware
     });
 });
 

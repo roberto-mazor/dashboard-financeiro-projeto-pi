@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // useEffect para o wake-up call
 import { useNavigate, Link } from 'react-router-dom';
 import { Sun, Moon, Sparkles, UserPlus } from 'lucide-react';
 import api from '../services/api';
@@ -11,13 +11,30 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Wake-up Call para acordar o Neon PostgreSQL
+  useEffect(() => {
+    const acordarBanco = async () => {
+      try {
+        // Tenta uma chamada simples para reduzir o impacto do Cold Start
+        await api.get('/auth/health').catch(() => null); 
+        console.log("Wake-up call enviado: acordando banco de dados...");
+      } catch (e) {
+      }
+    };
+
+    acordarBanco();
+  }, []);
+
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
       const response = await api.post('/auth/login', { email, senha });
+      
+      // Armazenamento de credenciais no navegador
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      
       navigate('/dashboard');
     } catch (error) {
       alert(error?.response?.data?.message || 'Erro ao conectar. Verifique suas credenciais.');
@@ -26,11 +43,10 @@ const Login = () => {
     }
   };
 
-  // Função para unir a Opção 1 e 2: Preenche e ilustra
+  // Preenchimento automático para facilitar a avaliação do recrutador
   const handleRecrutadorDemo = () => {
     setEmail('recrutador@demo.com');
     setSenha('123456');
-    // Pequeno feedback visual ou delay antes de entrar pode ser bom
   };
 
   return (
@@ -38,6 +54,7 @@ const Login = () => {
       className="flex flex-col items-center justify-center flex-1 w-full min-h-screen p-4 transition-colors duration-300"
       style={{ backgroundColor: theme?.background }}
     >
+      {/* Botão de Troca de Tema */}
       <button
         onClick={toggleTheme}
         className="fixed top-6 right-6 p-2.5 rounded-full border transition-all active:scale-90 shadow-sm z-50"
@@ -100,7 +117,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* ÁREA DE ACESSO RÁPIDO E REGISTRO */}
         <div className="mt-8 pt-6 border-t border-gray-700/20 flex flex-col items-center gap-4">
           
           <button 
