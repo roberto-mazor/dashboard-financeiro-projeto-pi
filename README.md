@@ -2,7 +2,8 @@
 
 Sistema completo de gestão financeira pessoal com visualização de dados em tempo real, suporte a temas (**Light/Dark**) e persistência de dados em nuvem.
 
-[Acessar Dashboard Financeiro](https://dashboard-financeiro-projeto-pi-web.vercel.app/login)
+<a href="https://dashboard-financeiro-projeto-pi-web.vercel.app/login" target="_blank">Acessar Dashboard Financeiro</a>
+
 
 
 ## ⚡ Otimização de Performance (Anti-Cold Start)
