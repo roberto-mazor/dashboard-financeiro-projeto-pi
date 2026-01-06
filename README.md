@@ -2,6 +2,9 @@
 
 Sistema completo de gestão financeira pessoal com visualização de dados em tempo real, suporte a temas (**Light/Dark**) e persistência de dados em nuvem.
 
+[Acessar Dashboard Financeiro](https://dashboard-financeiro-projeto-pi-web.vercel.app/login)
+
+
 ## ⚡ Otimização de Performance (Anti-Cold Start)
 
 Este projeto utiliza o **Neon PostgreSQL**, um banco de dados *serverless* que entra em modo de repouso após períodos de inatividade para otimização de recursos. 
