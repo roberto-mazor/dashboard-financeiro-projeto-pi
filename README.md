@@ -129,16 +129,15 @@ Este projeto visa a criação de um Dashboard Financeiro Pessoal completo para p
 
 ## II. Estrutura de Rotas (Frontend & Backend)
 
-| Rota (URL) | Tipo (HTTP) | Descrição da Rota | Backend Controller | Protegido? | 
- | ----- | ----- | ----- | ----- | ----- | 
-| `/api/auth/cadastro` | POST | Cria um novo usuário (Usuarios). | `usuarioController.cadastro` | Não | 
-| `/api/auth/login` | POST | Autentica e retorna um Token JWT. | `usuarioController.login` | Não | 
-| `/dashboard` | GET (FE) | Tela principal, resumo de saldo e fluxo. | N/A (Frontend Render) | Sim | 
-| `/transacoes` | GET (FE) | Tela de gestão de lançamentos. | N/A (Frontend Render) | Sim | 
-| `/api/transacoes` | GET/POST/PUT/DELETE | CRUD de lançamentos financeiros. | `transacaoController` | Sim | 
-| `/api/categorias` | GET/POST | CRUD de categorias de Receita/Despesa. | `categoriaController` | Sim | 
-| `/orcamento` | GET (FE) | Tela de acompanhamento de orçamento. | N/A (Frontend Render) | Sim | 
-| `/api/orcamento` | GET/POST/PUT | CRUD de limites de orçamento mensais. | `orcamentoController` | Sim | 
+| Rota (URL) | Tipo (HTTP) | Descrição da Rota | Backend Controller | Protegido? |
+| :--- | :---: | :--- | :--- | :---: |
+| `/api/auth/cadastro` | **POST** | Cria um novo usuário (Usuarios). | `usuarioController.cadastro` | 🔓 Público |
+| `/api/auth/login` | **POST** | Autentica e retorna um Token JWT. | `usuarioController.login` | 🔓 Público |
+| `/dashboard` | **GET (FE)** | Tela principal, resumo de saldo e fluxo. | *N/A (Frontend Render)* | 🔐 **Protegido** |
+| `/transacoes` | **GET (FE)** | Tela de gestão de lançamentos. | *N/A (Frontend Render)* | 🔐 **Protegido** |
+| `/api/transacoes` | **CRUD** | Gerenciamento de lançamentos financeiros. | `transacaoController` | 🔐 **Protegido** |
+| `/api/categorias` | **GET/POST** | Gestão de categorias de Receita/Despesa. | `categoriaController` | 🔐 **Protegido** |
+
 
 ## III. Backend (Node.js/Express/SQL)
 
