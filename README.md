@@ -63,6 +63,7 @@ A interface foi projetada seguindo princípios de **Hierarchy of Information** (
 * **Campos de Input:** Espaços otimizados para Nome (no registro), E-mail e Senha.
 * **Primary Button:** Botão de ação principal com cor sólida para "Entrar" ou "Finalizar Cadastro".
 * **Demo Access:** Link destacado para *"Preencher dados de teste"*, reduzindo drasticamente a fricção de entrada para avaliadores.
+![Tela de Login / Cadastro](/public/login_dashboard_financeiro.png)
 
 ### **2. Dashboard Principal (Visão Geral)**
 * **Sidebar (Esquerda):** Menu vertical contendo ícones de Navegação (Dashboard, Transações, Sair).
@@ -74,11 +75,14 @@ A interface foi projetada seguindo princípios de **Hierarchy of Information** (
 * **Área de Gráficos (Centro):**
     * *Lado Esquerdo:* Gráfico de Pizza (Donut) para Distribuição de Categorias.
     * *Lado Direito:* Gráfico de Barras para Resumo Mensal (Entradas vs Saídas).
+![Dashboard Principal](/public/dashboard_financeiro.png)
+
 
 ### **3. Gestão de Transações e Categorias**
 * **Formulário de Lançamento:** Inputs rápidos para Descrição, Valor, Data e Categoria.
 * **Seção Expansível (Categorias):** Box com borda pontilhada contendo input para nova categoria e seletor de tipo.
 * **Tabela de Histórico (Rodapé):** Lista detalhada com colunas para Descrição, Categoria, Data, Valor e Ações (Editar/Excluir).
+![Gestão de Transações e Categorias](/public/transacoes_categorias_financeiro.png)
 
 ---
 
