@@ -1,5 +1,7 @@
 const Transacao = require('../models/Transacao');
 const Categoria = require('../models/Categoria');
+const { Op } = require('sequelize');
+
 
 // Criar uma nova transação (Receita ou Despesa)
 exports.criarTransacao = async (req, res) => {
@@ -31,20 +33,38 @@ exports.criarTransacao = async (req, res) => {
 exports.listarTransacoes = async (req, res) => {
     try {
         const id_usuario = req.usuario.id;
-        
-        // Buscamos as transações incluindo os dados da categoria associada
+        const { data_inicio, data_fim, busca } = req.query;
+
+        // 3. Construção dinâmica do filtro WHERE
+        let filtro = { id_usuario };
+
+        // Filtro por Período de Datas
+        if (data_inicio && data_fim) {
+            filtro.data = {
+                [Op.between]: [data_inicio, data_fim]
+            };
+        }
+
+        // Filtro por Termo de Busca (Descrição)
+        if (busca) {
+            filtro.descricao = {
+                [Op.iLike]: `%${busca}%`
+            };
+        }
+
         const transacoes = await Transacao.findAll({
-        where: { id_usuario },
-        include: [{ 
-        model: Categoria, 
-        as: 'categoria', // Adicione isso aqui
-        attributes: ['nome', 'tipo'] 
-    }],
-        order: [['data', 'DESC']]
-});
+            where: filtro,
+            include: [{ 
+                model: Categoria, 
+                as: 'categoria', 
+                attributes: ['nome', 'tipo'] 
+            }],
+            order: [['data', 'DESC']]
+        });
 
         res.json(transacoes);
     } catch (error) {
+        console.error('Erro detalhado:', error);
         res.status(500).json({ error: 'Erro ao buscar transações.' });
     }
 };
