@@ -35,36 +35,26 @@ exports.listarTransacoes = async (req, res) => {
         const id_usuario = req.usuario.id;
         const { data_inicio, data_fim, busca } = req.query;
 
-        // 3. Construção dinâmica do filtro WHERE
-        let filtro = { id_usuario };
+        let onde = { id_usuario };
 
-        // Filtro por Período de Datas
+        // Adiciona filtro de data apenas se o usuário preencher
         if (data_inicio && data_fim) {
-            filtro.data = {
-                [Op.between]: [data_inicio, data_fim]
-            };
+            onde.data = { [Op.between]: [data_inicio, data_fim] };
         }
 
-        // Filtro por Termo de Busca (Descrição)
+        // Adiciona busca por texto (descrição)
         if (busca) {
-            filtro.descricao = {
-                [Op.iLike]: `%${busca}%`
-            };
+            onde.descricao = { [Op.iLike]: `%${busca}%` };
         }
 
         const transacoes = await Transacao.findAll({
-            where: filtro,
-            include: [{ 
-                model: Categoria, 
-                as: 'categoria', 
-                attributes: ['nome', 'tipo'] 
-            }],
+            where: onde,
+            include: [{ model: Categoria, as: 'categoria', attributes: ['nome', 'tipo'] }],
             order: [['data', 'DESC']]
         });
 
         res.json(transacoes);
     } catch (error) {
-        console.error('Erro detalhado:', error);
         res.status(500).json({ error: 'Erro ao buscar transações.' });
     }
 };
