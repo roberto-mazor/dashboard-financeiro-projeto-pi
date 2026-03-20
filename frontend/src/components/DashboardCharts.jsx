@@ -3,6 +3,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { useTheme } from '../contexts/ThemeContext';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { LineChart } from '@mui/x-charts/LineChart';
 
 const DashboardCharts = ({ transacoes }) => {
   const { theme, isDarkMode } = useTheme();
@@ -17,7 +18,7 @@ const DashboardCharts = ({ transacoes }) => {
     },
   });
 
-  // Processamento de dados
+  // LÓGICA 1: Processamento de dados (Pizza)
   const despesasPorCategoria = transacoes
     .filter(t => t.categoria?.tipo?.toLowerCase() === 'despesa')
     .reduce((acc, t) => {
@@ -30,6 +31,26 @@ const DashboardCharts = ({ transacoes }) => {
     }, [])
     .map((item, index) => ({ id: index, value: item.value, label: item.label }));
 
+    // --- LÓGICA 2: Evolução Diária (Linha) ---
+  const dadosLinha = useMemo(() => {
+    const agrupado = transacoes
+      .filter(t => t.categoria?.tipo?.toLowerCase() === 'despesa')
+      .reduce((acc, t) => {
+        // Formata a data para remover o horário e evitar problemas de fuso
+        const dataKey = t.data.split('T')[0];
+        acc[dataKey] = (acc[dataKey] || 0) + Math.abs(parseFloat(t.valor));
+        return acc;
+      }, {});
+
+    return Object.keys(agrupado)
+      .map(data => ({
+        data: new Date(data + 'T00:00:00'), // Garante o início do dia local
+        valor: agrupado[data]
+      }))
+      .sort((a, b) => a.data - b.data);
+  }, [transacoes]);
+
+    // --- LÓGICA 3: Totais (Barras) ---
   const totalEntradas = transacoes
     .filter(t => t.categoria?.tipo?.toLowerCase() === 'receita')
     .reduce((acc, t) => acc + parseFloat(t.valor), 0);

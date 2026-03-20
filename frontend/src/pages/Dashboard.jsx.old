@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Moon, Search, Calendar } from 'lucide-react';
+import { LogOut, Sun, Moon } from 'lucide-react';
 import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -10,6 +11,7 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionTable from '../components/TransactionTable';
 import DashboardCharts from '../components/DashboardCharts';
 
+
 const Dashboard = () => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -18,13 +20,7 @@ const Dashboard = () => {
   const [transacoes, setTransacoes] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
-
-  // --- NOVOS ESTADOS: Filtros de Pesquisa e Período ---
-  const [filtros, setFiltros] = useState({
-    data_inicio: '',
-    data_fim: '',
-    busca: ''
-  });
+  const [filtros, setFiltros] = useState({data_inicio: '', data_fim: '', busca: ''});
 
   // Estados de Interface
   const [feedback, setFeedback] = useState({ mensagem: '', tipo: '' });
@@ -45,37 +41,35 @@ const Dashboard = () => {
     setTimeout(() => setFeedback({ mensagem: '', tipo: '' }), 3000);
   };
 
-  // Carregar dados com suporte a Query Params (Filtros)
-  const carregarDados = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filtros.data_inicio) params.append('data_inicio', filtros.data_inicio);
-      if (filtros.data_fim) params.append('data_fim', filtros.data_fim);
-      if (filtros.busca) params.append('busca', filtros.busca);
+const carregarDados = async () => {
+  try {
+    // Monta a query string dinamicamente
+    const params = new URLSearchParams();
+    if (filtros.data_inicio) params.append('data_inicio', filtros.data_inicio);
+    if (filtros.data_fim) params.append('data_fim', filtros.data_fim);
+    if (filtros.busca) params.append('busca', filtros.busca);
 
-      const [resResumo, resLista, resCats] = await Promise.all([
-        api.get('/dashboard/resumo'),
-        api.get(`/transacoes?${params.toString()}`),
-        api.get('/categorias')
-      ]);
-      
-      setResumo(resResumo.data);
-      setTransacoes(resLista.data);
-      setCategorias(resCats.data);
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      mostrarFeedback('Erro de conexão com o servidor', 'erro');
-    }
-  };
+    const [resResumo, resLista, resCats] = await Promise.all([
+      api.get('/dashboard/resumo'),
+      api.get(`/transacoes?${params.toString()}`), // Rota com filtros
+      api.get('/categorias')
+    ]);
+    
+    setResumo(resResumo.data);
+    setTransacoes(resLista.data);
+    setCategorias(resCats.data);
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error);
+  }
+};
 
-  // Efeito para disparar a busca com Debounce (evita sobrecarga no banco)
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      carregarDados();
-    }, 500); 
-
-    return () => clearTimeout(delayDebounce);
-  }, [filtros]);
+// useEffect para disparar a busca quando os filtros mudarem
+useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    carregarDados();
+  }, 500); // Aguarda 500ms após o usuário parar de digitar
+  return () => clearTimeout(delayDebounce);
+}, [filtros]);
 
   // Ações de Transação
   const handleSaveTransacao = async (e) => {
@@ -118,6 +112,7 @@ const Dashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Ações de Categoria
   const handleAddCategoria = async (nome, tipo) => {
     try {
       const response = await api.post('/categorias', { nome, tipo });
@@ -131,11 +126,12 @@ const Dashboard = () => {
     }
   };
 
+  // Atualizar Nome da Categoria
   const handleUpdateCategoria = async (id, novoNome) => {
     try {
       await api.put(`/categorias/${id}`, { nome: novoNome });
       mostrarFeedback('Categoria renomeada!', 'sucesso');
-      carregarDados();
+      carregarDados(); // Recarrega para atualizar a tabela e o form
       return true;
     } catch (error) {
       mostrarFeedback('Erro ao atualizar categoria', 'erro');
@@ -199,60 +195,15 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* --- BARRA DE FILTROS --- */}
-        <div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-2xl border shadow-sm mb-8 transition-all"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
-        >
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" size={18} style={{ color: theme.text }} />
-            <input 
-              type="date" 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-transparent focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-              style={{ borderColor: theme.border, color: theme.text }}
-              value={filtros.data_inicio}
-              onChange={(e) => setFiltros({ ...filtros, data_inicio: e.target.value })}
-            />
-            <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Início</span>
-          </div>
-
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" size={18} style={{ color: theme.text }} />
-            <input 
-              type="date" 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-transparent focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-              style={{ borderColor: theme.border, color: theme.text }}
-              value={filtros.data_fim}
-              onChange={(e) => setFiltros({ ...filtros, data_fim: e.target.value })}
-            />
-            <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Fim</span>
-          </div>
-
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" size={18} style={{ color: theme.text }} />
-            <input 
-              type="text" 
-              placeholder="Pesquisar por descrição..." 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-transparent focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-              style={{ borderColor: theme.border, color: theme.text }}
-              value={filtros.busca}
-              onChange={(e) => setFiltros({ ...filtros, busca: e.target.value })}
-            />
-          </div>
-        </div>
-
         <SummaryCards resumo={resumo} />
-        
-        {/* DashboardCharts agora recebe as transações já filtradas */}
         <DashboardCharts transacoes={transacoes} />
-
         <TransactionForm 
           form={form} 
           setForm={setForm} 
           categorias={categorias} 
           onSave={handleSaveTransacao} 
           onAddCategoria={handleAddCategoria}
-          onUpdateCategoria={handleUpdateCategoria}
+          onUpdateCategoria={handleUpdateCategoria} // Passando a nova função
         />
         
         <TransactionTable 
