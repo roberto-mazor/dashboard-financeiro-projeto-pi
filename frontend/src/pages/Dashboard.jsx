@@ -212,6 +212,7 @@ const Dashboard = () => {
               style={{ borderColor: theme.border, color: theme.text }}
               value={filtros.data_inicio}
               onChange={(e) => setFiltros({ ...filtros, data_inicio: e.target.value })}
+              max={filtros.data_fim}
             />
             <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Início</span>
           </div>
@@ -224,6 +225,7 @@ const Dashboard = () => {
               style={{ borderColor: theme.border, color: theme.text }}
               value={filtros.data_fim}
               onChange={(e) => setFiltros({ ...filtros, data_fim: e.target.value })}
+              min={filtros.data_inicio}
             />
             <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Fim</span>
           </div>
