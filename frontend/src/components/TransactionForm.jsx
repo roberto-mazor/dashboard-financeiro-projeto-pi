@@ -1,4 +1,4 @@
-import { PlusCircle, CheckCircle, XCircle, Edit2, Settings } from 'lucide-react';
+import { PlusCircle, CheckCircle, XCircle, Edit2, Settings, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -8,7 +8,8 @@ const TransactionForm = ({
   categorias, 
   onSave, 
   onAddCategoria,
-  onUpdateCategoria 
+  onUpdateCategoria,
+  onDeleteCategoria // Nova prop para deletar
 }) => {
   const { theme, isDarkMode } = useTheme();
   const [mostraPainelCategoria, setMostraPainelCategoria] = useState(false);
@@ -34,6 +35,13 @@ const TransactionForm = ({
   const salvarEdicao = async (id) => {
     const sucesso = await onUpdateCategoria(id, nomeEditado);
     if (sucesso) setEditandoCat(null);
+  };
+
+  // Função interna para confirmar e deletar
+  const handleExcluirCategoria = (id, nome) => {
+    if (window.confirm(`Deseja excluir a categoria "${nome}"? Isso pode afetar transações já vinculadas.`)) {
+      onDeleteCategoria(id);
+    }
   };
 
   return (
@@ -100,7 +108,6 @@ const TransactionForm = ({
           </button>
         </div>
 
-        {/* w-full para mobile e lg:w-auto para desktop */}
         <button 
           type="submit" 
           className="w-full lg:w-auto h-11.5 px-6 rounded-lg text-white font-bold flex items-center justify-center gap-2 shadow-md hover:opacity-90 active:scale-95 transition-all shrink-0 whitespace-nowrap"
@@ -141,12 +148,8 @@ const TransactionForm = ({
             </select>
             <button
               onClick={handleCreateCategoria}
-              className="text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md disabled:opacity-50"
-              style={{
-                backgroundColor: '#2563eb', // azul equivalente ao bg-blue-600
-                minWidth: '80px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
+              className="text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md"
+              style={{ backgroundColor: '#2563eb' }}
             >
               Criar
             </button>
@@ -169,10 +172,25 @@ const TransactionForm = ({
                   </div>
                 ) : (
                   <>
-                    <span className="text-sm opacity-90" style={{ color: theme.text }}>{cat.nome} <small className="opacity-50 text-[10px] uppercase">({cat.tipo})</small></span>
-                    <button onClick={() => iniciarEdicao(cat)} className="text-indigo-400 hover:text-indigo-600 p-1 transition-colors">
-                      <Edit2 size={16} />
-                    </button>
+                    <span className="text-sm opacity-90" style={{ color: theme.text }}>
+                      {cat.nome} <small className="opacity-50 text-[10px] uppercase">({cat.tipo})</small>
+                    </span>
+                    <div className="flex gap-1">
+                      <button 
+                        onClick={() => iniciarEdicao(cat)} 
+                        className="text-indigo-400 hover:text-indigo-600 p-1 transition-colors"
+                        title="Editar"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleExcluirCategoria(cat.id_categoria, cat.nome)} 
+                        className="text-red-400 hover:text-red-600 p-1 transition-colors"
+                        title="Excluir"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </>
                 )}
               </div>

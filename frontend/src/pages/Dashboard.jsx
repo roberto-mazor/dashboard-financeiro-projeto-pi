@@ -125,6 +125,16 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteCategoria = async (id) => {
+  try {
+    await api.delete(`/categorias/${id}`);
+    mostrarFeedback('Categoria removida!', 'sucesso');
+    carregarDados(); // Recarrega para limpar a lista
+  } catch (error) {
+    mostrarFeedback(error.response?.data?.error || 'Erro ao excluir categoria', 'erro');
+  }
+};
+
   const handleEdit = (t) => {
     setForm({
       id_transacao: t.id_transacao,
@@ -270,6 +280,7 @@ const Dashboard = () => {
           onSave={handleSaveTransacao} 
           onAddCategoria={handleAddCategoria}
           onUpdateCategoria={handleUpdateCategoria}
+          onDeleteCategoria={handleDeleteCategoria}
         />
         
         <TransactionTable 
