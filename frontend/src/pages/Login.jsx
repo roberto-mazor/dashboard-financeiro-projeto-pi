@@ -118,7 +118,7 @@ const Login = () => {
       </div>
 
       {/* SEÇÃO DIREITA: LOGIN (Fixa no Desktop, Auto no Mobile) */}
-      <div className="lg:w-[450px] flex items-center justify-center p-6 lg:p-12 relative shadow-[-10px_0_30px_rgba(0,0,0,0.05)] z-10">
+      <div className="lg:w-112.5 flex items-center justify-center p-6 lg:p-12 relative shadow-[-10px_0_30px_rgba(0,0,0,0.05)] z-10">
         <button
           onClick={toggleTheme}
           className="absolute top-6 right-6 p-2.5 rounded-full border shadow-sm z-50 transition-all active:scale-90"
