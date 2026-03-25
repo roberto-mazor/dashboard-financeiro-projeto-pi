@@ -14,15 +14,31 @@ const Dashboard = () => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
+  // --- LÓGICA DE DATAS (Mês Atual) ---
+  const getPeriodoAtual = () => {
+    const agora = new Date();
+    // Primeiro dia do mês atual
+    const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    // Último dia do mês atual
+    const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+
+    return {
+      inicio: primeiroDia.toISOString().split('T')[0],
+      fim: ultimoDia.toISOString().split('T')[0]
+    };
+  };
+
+  const periodoPadrao = getPeriodoAtual();
+
   // Estados de Dados
   const [transacoes, setTransacoes] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [resumo, setResumo] = useState({ entradas: 0, saidas: 0, saldo: 0 });
 
-  // --- NOVOS ESTADOS: Filtros de Pesquisa e Período ---
+  // --- ESTADOS: Filtros com Mês Atual como Padrão ---
   const [filtros, setFiltros] = useState({
-    data_inicio: '',
-    data_fim: '',
+    data_inicio: periodoPadrao.inicio,
+    data_fim: periodoPadrao.fim,
     busca: ''
   });
 
@@ -53,8 +69,10 @@ const Dashboard = () => {
       if (filtros.data_fim) params.append('data_fim', filtros.data_fim);
       if (filtros.busca) params.append('busca', filtros.busca);
 
+      // Importante: Note que enviamos os params também para a rota de resumo
+      // para que os cards de cima (Entradas/Saídas) respeitem o filtro de data.
       const [resResumo, resLista, resCats] = await Promise.all([
-        api.get('/dashboard/resumo'),
+        api.get(`/dashboard/resumo?${params.toString()}`), 
         api.get(`/transacoes?${params.toString()}`),
         api.get('/categorias')
       ]);
@@ -68,7 +86,7 @@ const Dashboard = () => {
     }
   };
 
-  // Efeito para disparar a busca com Debounce (evita sobrecarga no banco)
+  // Efeito para disparar a busca com Debounce
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       carregarDados();
@@ -212,7 +230,6 @@ const Dashboard = () => {
               style={{ borderColor: theme.border, color: theme.text }}
               value={filtros.data_inicio}
               onChange={(e) => setFiltros({ ...filtros, data_inicio: e.target.value })}
-              max={filtros.data_fim}
             />
             <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Início</span>
           </div>
@@ -225,7 +242,6 @@ const Dashboard = () => {
               style={{ borderColor: theme.border, color: theme.text }}
               value={filtros.data_fim}
               onChange={(e) => setFiltros({ ...filtros, data_fim: e.target.value })}
-              min={filtros.data_inicio}
             />
             <span className="absolute -top-2 left-3 px-1 text-[10px] uppercase tracking-wider font-bold" style={{ backgroundColor: theme.surface, color: theme.text }}>Fim</span>
           </div>
@@ -245,7 +261,6 @@ const Dashboard = () => {
 
         <SummaryCards resumo={resumo} />
         
-        {/* DashboardCharts agora recebe as transações já filtradas */}
         <DashboardCharts transacoes={transacoes} />
 
         <TransactionForm 
