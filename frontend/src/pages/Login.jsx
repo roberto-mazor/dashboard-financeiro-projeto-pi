@@ -37,7 +37,7 @@ const Login = () => {
 
   const handleRecrutadorDemo = () => {
     setEmail('recrutador@demo.com');
-    setSenha('123456');
+    setSenha('Recrut@Dash2026');
   };
 
   return (
@@ -72,7 +72,7 @@ const Login = () => {
               </div>
               <div className="flex justify-between pt-1">
                 <span style={{ color: theme?.textSecondary }}>Senha:</span>
-                <code className="font-bold" style={{ color: '#bb86fc' }}>123456</code>
+                <code className="font-bold" style={{ color: '#bb86fc' }}>Recrut@Dash2026</code>
               </div>
             </div>
           </div>
