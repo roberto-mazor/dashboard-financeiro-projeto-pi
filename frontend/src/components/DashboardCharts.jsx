@@ -113,7 +113,7 @@ const DashboardCharts = ({ transacoes }) => {
               />
             ) : (
               <div className="flex items-center justify-center h-full text-zinc-500 italic">
-                Nenhuma despesa para exibir no gráfico de linha.
+                Nenhuma despesa para exibir no gráfico de linha esse mês.
               </div>
             )}
           </div>
