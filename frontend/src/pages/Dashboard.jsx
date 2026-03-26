@@ -69,8 +69,6 @@ const Dashboard = () => {
       if (filtros.data_fim) params.append('data_fim', filtros.data_fim);
       if (filtros.busca) params.append('busca', filtros.busca);
 
-      // Importante: Note que enviamos os params também para a rota de resumo
-      // para que os cards de cima (Entradas/Saídas) respeitem o filtro de data.
       const [resResumo, resLista, resCats] = await Promise.all([
         api.get(`/dashboard/resumo?${params.toString()}`), 
         api.get(`/transacoes?${params.toString()}`),

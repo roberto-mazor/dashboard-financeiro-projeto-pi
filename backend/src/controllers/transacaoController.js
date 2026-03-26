@@ -80,6 +80,7 @@ exports.deletarTransacao = async (req, res) => {
 // Editar uma transação existente
 exports.editarTransacao = async (req, res) => {
     try {
+        console.log("🔍 Filtros recebidos no Backend:", req.query); // Verifique o terminal do VS Code
         const { id } = req.params;
         const { valor, data, descricao, id_categoria } = req.body;
         const id_usuario = req.usuario.id;
