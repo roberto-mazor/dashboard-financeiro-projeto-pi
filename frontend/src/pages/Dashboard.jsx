@@ -118,6 +118,13 @@ const Dashboard = () => {
       try {
         await api.delete(`/transacoes/${id}`);
         mostrarFeedback('Registro removido', 'sucesso');
+        setForm({
+    id_transacao: null,
+    descricao: '',
+    valor: '',
+    id_categoria: '',
+    data: new Date().toISOString().split('T')[0]
+  })
         carregarDados();
       } catch (error) {
         mostrarFeedback('Erro ao excluir', 'erro');
@@ -143,7 +150,9 @@ const Dashboard = () => {
       id_categoria: t.id_categoria,
       data: t.data.split('T')[0]
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.location.href = '/dashboard/#novaTransacao'
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
+    
   };
 
   const handleAddCategoria = async (nome, tipo) => {

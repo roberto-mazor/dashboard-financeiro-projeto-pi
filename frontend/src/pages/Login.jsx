@@ -55,7 +55,8 @@ const Login = () => {
               Finance <span style={{ color: '#bb86fc' }}>Dashboard</span>
             </h1>
             <p className="text-lg opacity-80" style={{ color: theme?.textSecondary }}>
-              Projeto Integrador focado em gestão financeira pessoal com análise de dados em tempo real.
+              Projeto Integrador focado em gestão financeira pessoal com análise de dados em tempo real. <br/>
+              Senac (Técnico Informatica para Internet)
             </p>
           </header>
 

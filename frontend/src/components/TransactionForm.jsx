@@ -49,7 +49,7 @@ const TransactionForm = ({
       className="mb-8 p-5 rounded-xl shadow-md transition-all duration-300 border"
       style={{ backgroundColor: theme.surface, borderColor: theme.border }}
     >
-      <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: theme.text }}>
+      <h3 id='novaTransacao' className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: theme.text }}>
         {form.id_transacao ? <Edit2 size={20} className="text-amber-500" /> : <PlusCircle size={20} className="text-blue-500" />}
         {form.id_transacao ? 'Editar Transação' : 'Nova Transação'}
       </h3>
