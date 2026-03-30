@@ -37,24 +37,29 @@ exports.listarTransacoes = async (req, res) => {
 
         let onde = { id_usuario };
 
-        // Adiciona filtro de data apenas se o usuário preencher
-        if (data_inicio && data_fim) {
-            onde.data = { [Op.between]: [data_inicio, data_fim] };
-        }
-
-        // Adiciona busca por texto (descrição)
+        // PRIORIDADE: Se o usuário estiver buscando um texto, 
+        // ignorar o filtro de data para facilitar a localização global.
         if (busca) {
             onde.descricao = { [Op.iLike]: `%${busca}%` };
+        } 
+        // Caso NÃO haja busca por texto, aplicar o filtro de data do calendário
+        else if (data_inicio && data_fim) {
+            onde.data = { [Op.between]: [data_inicio, data_fim] };
         }
 
         const transacoes = await Transacao.findAll({
             where: onde,
-            include: [{ model: Categoria, as: 'categoria', attributes: ['nome', 'tipo'] }],
+            include: [{ 
+                model: Categoria, 
+                as: 'categoria', 
+                attributes: ['nome', 'tipo'] 
+            }],
             order: [['data', 'DESC']]
         });
 
         res.json(transacoes);
     } catch (error) {
+        console.error('Erro ao buscar transações:', error);
         res.status(500).json({ error: 'Erro ao buscar transações.' });
     }
 };
