@@ -52,10 +52,10 @@ exports.listarTransacoes = async (req, res) => {
             include: [{ 
                 model: Categoria, 
                 as: 'categoria', 
-                attributes: ['nome', 'tipo'] 
+                attributes: ['nome', 'tipo', 'status'] // Incluímos o status, mas sem filtrar
             }],
             order: [['data', 'DESC']]
-        });
+});
 
         res.json(transacoes);
     } catch (error) {

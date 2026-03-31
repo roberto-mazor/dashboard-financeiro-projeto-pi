@@ -6,19 +6,23 @@ exports.criarCategoria = async (req, res) => {
         const { nome, tipo } = req.body;
         const id_usuario = req.usuario.id;
 
-        // Formatação para garantir compatibilidade com o ENUM('Receita', 'Despesa')
-        const tipoFormatado = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+        const categoriaExistente = await Categoria.findOne({ where: { nome, id_usuario } });
 
-        const novaCategoria = await Categoria.create({
-            nome,
-            tipo: tipoFormatado,
-            id_usuario
-        });
+        if (categoriaExistente) {
+            if (categoriaExistente.status === 0) {
+                // Se estava deletada/inativa, reativar
+                categoriaExistente.status = 1;
+                categoriaExistente.tipo = tipo;
+                await categoriaExistente.save();
+                return res.status(200).json(categoriaExistente);
+            }
+            return res.status(400).json({ error: 'Categoria já ativa.' });
+        }
 
-        res.status(201).json(novaCategoria);
+        const nova = await Categoria.create({ nome, tipo, id_usuario, status: 1 });
+        res.status(201).json(nova);
     } catch (error) {
-        console.error('Erro ao criar categoria:', error);
-        res.status(500).json({ error: 'Erro ao criar categoria no banco de dados.' });
+        res.status(500).json({ error: 'Erro ao criar categoria.' });
     }
 };
 
@@ -27,7 +31,7 @@ exports.listarCategorias = async (req, res) => {
     try {
         const id_usuario = req.usuario.id;
         const categorias = await Categoria.findAll({ 
-            where: { id_usuario },
+            where: { id_usuario, status: 1 }, // Retorna apenas as ativas
             order: [['nome', 'ASC']] 
         });
         res.json(categorias);
@@ -69,14 +73,13 @@ exports.deletarCategoria = async (req, res) => {
         const { id } = req.params;
         const id_usuario = req.usuario.id;
 
-        const deletado = await Categoria.destroy({
-            where: { id_categoria: id, id_usuario }
-        });
+        await Categoria.update(
+            { status: 0 }, 
+            { where: { id_categoria: id, id_usuario } }
+        );
 
-        if (!deletado) return res.status(404).json({ error: 'Categoria não encontrada.' });
-
-        res.json({ message: 'Categoria eliminada com sucesso!' });
+        res.json({ message: 'Categoria removida com sucesso!' });
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao eliminar categoria.' });
+        res.status(500).json({ error: 'Erro ao remover categoria.' });
     }
 };
