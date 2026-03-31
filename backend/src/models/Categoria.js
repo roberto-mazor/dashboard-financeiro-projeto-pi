@@ -24,10 +24,11 @@ const Categoria = sequelize.define('Categoria', {
       key: 'id_usuario'
     }
   },
-  status: {
-    type: DataTypes.INTEGER,
-    defaultValue: 1
-  }
+status: {
+  type: DataTypes.INTEGER,
+  allowNull: false,
+  defaultValue: 1
+}
 }, {
   tableName: 'categorias',
   timestamps: false 

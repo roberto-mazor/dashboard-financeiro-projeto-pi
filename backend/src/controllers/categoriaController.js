@@ -3,14 +3,16 @@ const Categoria = require('../models/Categoria');
 // Criar nova categoria
 exports.criarCategoria = async (req, res) => {
     try {
-        const { nome, tipo } = req.body;
+        let { nome, tipo } = req.body;
         const id_usuario = req.usuario.id;
+        if (tipo) {
+            tipo = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+        }
 
         const categoriaExistente = await Categoria.findOne({ where: { nome, id_usuario } });
 
         if (categoriaExistente) {
             if (categoriaExistente.status === 0) {
-                // Se estava deletada/inativa, reativar
                 categoriaExistente.status = 1;
                 categoriaExistente.tipo = tipo;
                 await categoriaExistente.save();
@@ -19,9 +21,16 @@ exports.criarCategoria = async (req, res) => {
             return res.status(400).json({ error: 'Categoria já ativa.' });
         }
 
-        const nova = await Categoria.create({ nome, tipo, id_usuario, status: 1 });
+        const nova = await Categoria.create({ 
+            nome, 
+            tipo, 
+            id_usuario, 
+            status: 1 
+        });
+
         res.status(201).json(nova);
     } catch (error) {
+        console.error("Erro detalhado no Controller:", error);
         res.status(500).json({ error: 'Erro ao criar categoria.' });
     }
 };
