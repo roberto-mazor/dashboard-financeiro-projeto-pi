@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Corrigido: Adicionado RotateCcw nas importações
 import { LogOut, Sun, Moon, Search, Calendar, RotateCcw } from 'lucide-react';
 import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
@@ -62,7 +61,7 @@ const Dashboard = () => {
 
   // --- FUNÇÃO: Limpar Filtros ---
   const limparFiltros = () => {
-  const padrao = getPeriodoAtual(); // Aquela função que você já tem no Dashboard
+  const padrao = getPeriodoAtual(); 
   setFiltros({
     data_inicio: padrao.inicio,
     data_fim: padrao.fim,
