@@ -30,7 +30,7 @@ const DashboardCharts = ({ transacoes }) => {
       .map((item, index) => ({ id: index, value: item.value, label: item.label }));
   }, [transacoes]);
 
-  // LÓGICA 2: Barras Diárias (A variável que estava faltando)
+  // LÓGICA 2: Barras Diárias 
   const dadosEvolucaoBarras = useMemo(() => {
     if (!transacoes || transacoes.length === 0) return [];
     

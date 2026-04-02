@@ -41,7 +41,6 @@ const Login = () => {
   };
 
   return (
-    // Removido h-screen fixo no mobile, adicionado lg:h-screen e lg:overflow-hidden
     <div 
       className="min-h-screen lg:h-screen w-full flex flex-col-reverse lg:flex-row lg:overflow-hidden transition-colors duration-300"
       style={{ backgroundColor: theme?.background }}
