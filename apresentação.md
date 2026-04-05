@@ -480,6 +480,3 @@ Quando `transacoes` é atualizado pela API filtrada, os `useMemo` recalculam aut
 ## Arquitetura
 O projeto usa arquitetura monolítica com separação clara entre frontend e backend, ambos hospedados em Vercel para escalabilidade. O backend fornece APIs RESTful, enquanto o frontend consome esses dados para renderizar a interface.
 
-## Conclusão
-Este projeto demonstra habilidades avançadas em desenvolvimento Full Stack, desde a concepção de UX/UI no Figma até a implementação de funcionalidades complexas como filtros em tempo real e visualização de dados. A arquitetura serverless garante baixo custo e alta disponibilidade, ideal para aplicações em nuvem.</content>
-<parameter name="filePath">c:\Users\Mazor\Documents\GitHub\dashboard-financeiro-projeto-pi\apresentação.md
