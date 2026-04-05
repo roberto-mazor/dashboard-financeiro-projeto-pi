@@ -10,7 +10,38 @@ O **Dashboard Financeiro Inteligente** é um sistema completo de gestão finance
 - Implementar autenticação segura e isolamento de dados por usuário.
 - Otimizar performance com estratégias anti-cold start para bancos serverless.
 
-<a href="https://dashboard-financeiro-projeto-pi-web.vercel.app/login" target="_blank">Acessar Dashboard Financeiro</a>
+ **Links do Projeto**
+
+ [![Acessar Aplicação](https://img.shields.io/badge/Acessar%20Aplicação%20Vercel.APP-Clique%20Aqui-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://dashboard-financeiro-projeto-pi-web.vercel.app/login)
+
+ [![Figma Design](https://img.shields.io/badge/Figma-Design_Prototyping-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/design/CZdLGj7cyji3jCrJi4L4MB/Dashboard-financeiro-projeto-PI-Senac?node-id=7-672&t=pyxfEt9dFdHOWcag-0)
+
+ [![FigJam Diagramas](https://img.shields.io/badge/FigJam-Diagrams_Flow-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/board/PRCpvoC6MrcKUARoobVDV9/Diagramas-dashboard-financeiro-projeto-p?node-id=0-1&p=f&t=3RaSNnirl7oUtM5s-0)
+
+---
+
+### Design e Prototipagem (Figma)
+
+O projeto foi inteiramente planejado no Figma antes e durante a implementação, garantindo consistência visual e uma experiência de usuário fluida. O protótipo foca na **Acessibilidade** (Modo Claro/Escuro) e na **Dashboard Responsiva**.
+
+---
+
+#### **Estrutura de Wireframe (Análise de UX)**
+
+A estrutura foi dividida em três fluxos principais, respeitando a hierarquia de informação e a facilidade de navegação:
+
+##### **1. Login e Onboarding**
+* **Simbologia ISO:** O fluxo de entrada utiliza trapézios para input de dados e losangos para decisões de validação de e-mail/senha.
+* **Fricção Reduzida:** Inclusão estratégica do botão "Dados de Teste" para acelerar a avaliação de recrutadores.
+
+##### **2. Dashboard (Visão Analítica)**
+* **Layout de Painel:** Organizado em um grid onde o saldo (valor principal) ocupa o topo, seguido por gráficos que traduzem números em insights visuais.
+* **Componentização:** Uso de cards reutilizáveis para os resumos financeiros, facilitando a manutenção do código React.
+
+##### **3. Gestão de Lançamentos**
+* **Tabelas Adaptativas:** Wireframe focado em legibilidade, com ações de editar/excluir claras e formulários que não sobrecarregam a visão do usuário.
+
+---
 
 ## Arquitetura
 
@@ -137,6 +168,10 @@ O banco de dados utiliza PostgreSQL com as seguintes tabelas principais:
   - Relacionamento: N:1 com Usuarios e Categorias.
 
 Regras de negócio: Dados isolados por usuário; exclusão em cascata para limpeza automática; categorias padrão criadas automaticamente no cadastro.
+
+O sistema foi modelado para oferecer uma experiência fluida, utilizando padrões de interação que automatizam processos de backend e facilitam o onboarding do usuário.
+
+![Requisitos Funcionais e Casos de Uso (UML)](public/uml_dashboard_financeiro.svg)
 
 ## Principais Endpoints/Funcionalidades
 
