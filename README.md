@@ -142,7 +142,7 @@ dashboard-financeiro-projeto-pi/
 
 O banco de dados utiliza PostgreSQL com as seguintes tabelas principais:
 
-
+![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
 
 - **Usuarios:**
   - `id_usuario` (PK): Identificador único do usuário.
