@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sun, Moon, Sparkles, UserPlus, Database, Layout, ShieldCheck, CheckCircle2, Code2 } from 'lucide-react';
+// Adicionei 'Github' nos imports do lucide-react
+import { Sun, Moon, Sparkles, UserPlus, Database, Layout, ShieldCheck, CheckCircle2, Code2, Github } from 'lucide-react';
 import api from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -103,7 +104,7 @@ const Login = () => {
           </section>
 
           {/* FUNCIONALIDADES */}
-          <section className="space-y-4 pb-12">
+          <section className="space-y-4">
             <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: theme?.text }}>
               <CheckCircle2 size={22} className="text-emerald-500" /> Funcionalidades Principais
             </h2>
@@ -114,10 +115,35 @@ const Login = () => {
               <li className="flex gap-2">🔹 <strong>Saldo Real:</strong> Monitoramento automático.</li>
             </ul>
           </section>
+
+          {/* CARD DO GITHUB (NOVO) */}
+          <section className="pb-12 pt-4">
+            <a 
+              href="https://github.com/roberto-mazor/dashboard-financeiro-projeto-pi" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4 p-5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ backgroundColor: theme?.surface, borderColor: theme?.border }}
+            >
+              <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 group-hover:bg-purple-500/10 transition-colors">
+                <Github size={28} style={{ color: theme?.text }} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-sm" style={{ color: theme?.text }}>Ver Código Fonte</h3>
+                <p className="text-xs opacity-60" style={{ color: theme?.textSecondary }}>Acesse o repositório oficial no GitHub</p>
+              </div>
+              <div 
+                className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                style={{ backgroundColor: '#bb86fc20', color: '#bb86fc' }}
+              >
+                Open Source
+              </div>
+            </a>
+          </section>
         </div>
       </div>
 
-      {/* SEÇÃO DIREITA: LOGIN (Fixa no Desktop, Auto no Mobile) */}
+      {/* SEÇÃO DIREITA: LOGIN */}
       <div className="lg:w-112.5 flex items-center justify-center p-6 lg:p-12 relative shadow-[-10px_0_30px_rgba(0,0,0,0.05)] z-10">
         <button
           onClick={toggleTheme}
