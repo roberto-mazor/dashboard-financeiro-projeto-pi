@@ -1,259 +1,249 @@
 # 📊 Dashboard Financeiro Inteligente
 
-Sistema completo de gestão financeira pessoal com visualização de dados em tempo real, suporte a temas (**Light/Dark**) e persistência de dados em nuvem.
+## Introdução
+
+O **Dashboard Financeiro Inteligente** é um sistema completo de gestão financeira pessoal desenvolvido para portfólio, focado em demonstrar proficiência em análise de dados, visualização e arquitetura Full Stack. O projeto permite aos usuários gerenciar transações financeiras, categorizar entradas e saídas, visualizar dados em tempo real através de gráficos interativos e alternar entre temas claro e escuro. A persistência de dados é realizada em nuvem utilizando PostgreSQL serverless.
+
+**Objetivos:**
+- Fornecer uma interface intuitiva para controle financeiro pessoal.
+- Demonstrar habilidades em desenvolvimento Full Stack com tecnologias modernas.
+- Implementar autenticação segura e isolamento de dados por usuário.
+- Otimizar performance com estratégias anti-cold start para bancos serverless.
 
 <a href="https://dashboard-financeiro-projeto-pi-web.vercel.app/login" target="_blank">Acessar Dashboard Financeiro</a>
 
+## Arquitetura
 
+O projeto adota uma arquitetura **monolítica** com separação clara entre frontend e backend, hospedados em plataformas serverless para escalabilidade e baixo custo. O backend é uma API RESTful em Node.js/Express que gerencia a lógica de negócio, autenticação e acesso ao banco de dados. O frontend é uma Single Page Application (SPA) em React/Vite, responsável pela interface do usuário e consumo da API. O banco de dados PostgreSQL é hospedado no Neon.tech, um serviço serverless que entra em modo de repouso após inatividade, exigindo estratégias de "wake-up" para evitar latências.
 
-## ⚡ Otimização de Performance (Anti-Cold Start)
+- **Frontend:** Cliente web responsivo e interativo.
+- **Backend:** Servidor API com autenticação JWT e ORM para abstração de dados.
+- **Banco de Dados:** PostgreSQL serverless para persistência relacional.
+- **Infraestrutura:** Hospedagem em Vercel para frontend e backend, com Neon para banco.
 
-Este projeto utiliza o **Neon PostgreSQL**, um banco de dados *serverless* que entra em modo de repouso após períodos de inatividade para otimização de recursos. 
+## Tecnologias Utilizadas
 
-Para garantir uma experiência fluida e sem atrasos para recrutadores e usuários, implementei uma estratégia de **Wake-up Call**:
+- **Frontend:**
+  - **React.js (Vite):** Framework para construção de interfaces dinâmicas e rápidas, com Vite para bundling otimizado e hot reload durante desenvolvimento.
+  - **Tailwind CSS:** Framework CSS utilitário para estilização responsiva e customização de temas (Light/Dark).
+  - **MUI X Charts:** Biblioteca para visualização de dados avançada, utilizada para gráficos de pizza e barras, garantindo interatividade e acessibilidade.
+  - **Lucide React:** Conjunto de ícones leves e elegantes para melhorar a UX.
+  - **Axios:** Cliente HTTP para consumo da API backend, com interceptores para autenticação automática.
 
-* **Antecipação de Latência:** Assim que a tela de login é carregada, o frontend dispara uma requisição silenciosa para o endpoint `/api/auth/health`.
-* **Aquecimento de Instância:** Essa chamada "acorda" a instância do banco de dados enquanto o usuário ainda está preenchendo suas credenciais, eliminando a percepção de espera no momento do clique.
-* **Feedback Visual:** Todos os botões de ação possuem estados de carregamento (*loading states*) para fornecer feedback imediato e evitar múltiplos disparos durante o processamento de dados.
+- **Backend:**
+  - **Node.js & Express:** Plataforma para servidor web escalável, com Express para roteamento e middlewares.
+  - **JWT (JSON Web Token):** Padrão para autenticação stateless, garantindo segurança nas rotas protegidas.
+  - **Bcrypt.js:** Biblioteca para hash de senhas, protegendo credenciais de usuários.
+  - **Sequelize (ORM):** Abstração de consultas SQL, facilitando o mapeamento objeto-relacional e migrações.
 
-## 🚀 Diferenciais de UX para Recrutadores
-Para facilitar a sua avaliação, implementei estratégias que removem barreiras de acesso:
+- **Banco de Dados & Infra:**
+  - **PostgreSQL (Neon.tech):** Banco relacional serverless, escolhido por sua confiabilidade, suporte a ACID e otimização para aplicações em nuvem, reduzindo custos operacionais.
 
-* **Acesso Rápido (Modo Demo):** No login, utilize o botão *"Preencher dados de teste"* para entrar instantaneamente com um perfil preenchido.
-* **Semente de Dados Automática:** Ao criar uma conta nova, o sistema gera automaticamente categorias padrão (Alimentação, Salário, Lazer) para que você possa testar os gráficos de imediato.
-* **Interface Adaptável:** Suporte completo a Modo Escuro com gráficos que ajustam legendas e eixos dinamicamente.
+## Estrutura de Pastas
 
----
+```
+dashboard-financeiro-projeto-pi/
+├── LICENSE
+├── README.md
+├── backend/
+│   ├── package.json
+│   ├── server.js
+│   ├── vercel.json
+│   └── src/
+│       ├── config/
+│       │   └── db.js
+│       ├── controllers/
+│       │   ├── categoriaController.js
+│       │   ├── dashboardController.js
+│       │   ├── transacaoController.js
+│       │   └── usuarioController.js
+│       ├── middleware/
+│       │   └── authMiddleware.js
+│       ├── models/
+│       │   ├── Categoria.js
+│       │   ├── Transacao.js
+│       │   └── Usuario.js
+│       └── routes/
+│           ├── authRoutes.js
+│           ├── categoriaRoutes.js
+│           ├── dashboardRoutes.js
+│           └── transacaoRoutes.js
+├── frontend/
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── README.md
+│   ├── tailwind.config.js
+│   ├── vercel.json
+│   ├── vite.config.js
+│   ├── public/
+│   └── src/
+│       ├── App.css
+│       ├── App.jsx
+│       ├── index.css
+│       ├── main.jsx
+│       ├── assets/
+│       ├── components/
+│       │   ├── DashboardCharts.jsx
+│       │   ├── SummaryCards.jsx
+│       │   ├── TransactionForm.jsx
+│       │   └── TransactionTable.jsx
+│       ├── contexts/
+│       │   └── ThemeContext.jsx
+│       ├── pages/
+│       │   ├── Dashboard.jsx
+│       │   ├── Login.jsx
+│       │   └── Register.jsx
+│       ├── routes/
+│       │   └── index.jsx
+│       ├── services/
+│       │   └── api.js
+│       └── styles/
+│           └── globals.css
+└── public/
+```
 
-## 🛠️ Tecnologias Utilizadas
+- **backend/:** Contém o código do servidor Node.js/Express, incluindo configurações, modelos, controladores, middlewares e rotas.
+- **frontend/:** Estrutura do cliente React/Vite, com componentes, páginas, contextos e serviços.
+- **public/:** Arquivos estáticos compartilhados, como imagens para documentação.
 
-### **Frontend**
-* **React.js (Vite):** Estrutura de SPA rápida e moderna.
-* **Tailwind CSS:** Estilização responsiva e sistema de temas.
-* **MUI X Charts:** Visualização de dados avançada com gráficos de pizza e barras.
-* **Lucide React:** Conjunto de ícones leves e elegantes.
-* **Axios:** Consumo de API.
+## Modelagem de Dados
 
-### **Backend**
-* **Node.js & Express:** API REST robusta.
-* **JWT (JSON Web Token):** Autenticação segura de usuários.
-* **Bcrypt.js:** Criptografia de senhas.
-* **Sequelize (ORM):** Gerenciamento e abstração de consultas SQL.
-
-### **Banco de Dados & Infra**
-* **PostgreSQL (Neon.tech):** Banco de dados relacional hospedado em nuvem (Serverless).
-
----
-
-## 📈 Funcionalidades Principais
-
-* **Gestão de Transações:** Fluxo completo de Entradas e Saídas com histórico detalhado.
-* **Gerenciamento de Categorias:** Personalização de categorias por usuário com cores e tipos específicos.
-* **Análise Visual:** Gráfico de distribuição de despesas por categoria e comparativo de balanço mensal.
-* **Cálculo de Saldo Real:** Monitoramento dinâmico de entradas, saídas e saldo total.
-
----
-
-## 🖼️ Estrutura de Wireframe (Esqueleto da Interface)
-
-A interface foi projetada seguindo princípios de **Hierarchy of Information** (Hierarquia de Informação) e **User Flow** intuitivo.
-
-### **1. Tela de Login / Cadastro**
-* **Central Card:** Um contêiner centralizado para foco total no usuário.
-* **Campos de Input:** Espaços otimizados para Nome (no registro), E-mail e Senha.
-* **Primary Button:** Botão de ação principal com cor sólida para "Entrar" ou "Finalizar Cadastro".
-* **Demo Access:** Link destacado para *"Preencher dados de teste"*, reduzindo drasticamente a fricção de entrada para avaliadores.
-
-![Tela de Login / Cadastro](/public/login_dashboard_financeiro.png)
-
-### **2. Dashboard Principal (Visão Geral)**
-* **Sidebar (Esquerda):** Menu vertical contendo ícones de Navegação (Dashboard, Transações, Sair).
-* **Header (Topo):** Título da seção e botão de alternância de Tema (**Sun/Moon**).
-* **Grid de Cards (Topo):** Três blocos horizontais de leitura rápida:
-    * **Saldo Total:** Valor central em destaque.
-    * **Entradas:** Indicador visual positivo (verde).
-    * **Saídas:** Indicador visual negativo (vermelho).
-* **Área de Gráficos (Centro):**
-    * *Lado Esquerdo:* Gráfico de Pizza (Donut) para Distribuição de Categorias.
-    * *Lado Direito:* Gráfico de Barras para Resumo Mensal (Entradas vs Saídas).
-
-![Dashboard Principal](/public/dashboard_full_screen.png)
-
-
-### **3. Gestão de Transações e Categorias**
-* **Formulário de Lançamento:** Inputs rápidos para Descrição, Valor, Data e Categoria.
-* **Seção Expansível (Categorias):** Box com borda pontilhada contendo input para nova categoria e seletor de tipo.
-* **Tabela de Histórico (Rodapé):** Lista detalhada com colunas para Descrição, Categoria, Data, Valor e Ações (Editar/Excluir).
-
-![Gestão de Transações e Categorias](/public/transacoes_dashboard_financeiro.png)
-
----
-
-## ⚙️ Como rodar o projeto
-
-### **1. Clonar o repositório**
-```bash
-git clone [https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git](https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git)
-
-### **2. Configurar o Backend**
-
-1. Entre na pasta `server`:
-   ```bash
-   cd server
-   ```
- ### **2. Crie um arquivo .env com suas credenciais do Neon PostgreSQL e uma JWT_SECRET.**
-
-### 3. Instale as dependências:
-    ```bash
-    npm install
-    ```
-### 4. Inicie o servidor:
-    ```bash
-    npm run dev
-    ```
----
-# dashboard-financeiro-projeto-pi
-
-# 📄 Documentação do Projeto: Dashboard Financeiro Pessoal
-
-## I. Visão Geral do Projeto
-
-Este projeto visa a criação de um Dashboard Financeiro Pessoal completo para portfólio, focado em demonstrar proficiência em análise de dados, visualização e arquitetura Full Stack.
-
-| Item | Descrição | 
- | ----- | ----- | 
-| **Objetivo** | Criar um Dashboard Financeiro Pessoal para portfólio, demonstrando análise de dados, visualização e arquitetura Full Stack. | 
-| **Frontend Stack** | React (com Vite), Material UI (MUI) para componentes estruturais, Tailwind CSS para estilização e customização. | 
-| **Backend Stack** | Node.js/Express, SQL (a ser definido, ex: PostgreSQL/MySQL), ORM (ex: Sequelize) para abstração do DB. | 
-| **Arquitetura Backend** | MVC (Model-View-Controller) com rotas protegidas por JSON Web Tokens (JWT) para autenticação segura. | 
-
-## II. Estrutura de Rotas (Frontend & Backend)
-
-| Rota (URL) | Tipo (HTTP) | Descrição da Rota | Backend Controller | Protegido? |
-| :--- | :---: | :--- | :--- | :---: |
-| `/api/auth/cadastro` | **POST** | Cria um novo usuário (Usuarios). | `usuarioController.cadastro` | 🔓 Público |
-| `/api/auth/login` | **POST** | Autentica e retorna um Token JWT. | `usuarioController.login` | 🔓 Público |
-| `/dashboard` | **GET (FE)** | Tela principal, resumo de saldo e fluxo. | *N/A (Frontend Render)* | 🔐 **Protegido** |
-| `/transacoes` | **GET (FE)** | Tela de gestão de lançamentos. | *N/A (Frontend Render)* | 🔐 **Protegido** |
-| `/api/transacoes` | **CRUD** | Gerenciamento de lançamentos financeiros. | `transacaoController` | 🔐 **Protegido** |
-| `/api/categorias` | **GET/POST** | Gestão de categorias de Receita/Despesa. | `categoriaController` | 🔐 **Protegido** |
-
-
-## III. Backend (Node.js/Express/SQL)
-
-### A. Estrutura de Diretórios
-
-| Diretório | Função | Exemplo de Arquivo Chave | 
- | ----- | ----- | ----- | 
-| `server.js` | Inicialização do Servidor, Middlewares globais. | `const app = express();` | 
-| `src/config` | Configurações de terceiros. | `db.js` (conexão SQL e ORM) | 
-| `src/models` | Mapeamento das tabelas SQL (Schemas ORM). | `Transacao.js`, `Usuario.js` | 
-| `src/routes` | Define as URLs e direciona para os Controllers. | `transacaoRoutes.js` | 
-| `src/controllers` | Lógica da requisição (recebe req, chama models, envia res). | `usuarioController.js` | 
-| `src/middleware` | Funções executadas antes dos Controllers. | `authMiddleware.js` (Verifica JWT) | 
-| `.env` | Armazena variáveis sensíveis (porta, credenciais do DB, chave JWT). | `DB_USER=root` | 
-
-### B. Modelos de Dados SQL (Tabelas Principais)
-
-| Tabela | Chave Primária | Relações (Foreign Keys) | Campos Chaves | 
- | ----- | ----- | ----- | ----- | 
-| `Usuarios` | `id_usuario` | N/A | `email`, `senha_hash`, `nome` | 
-| `Contas` | `id_conta` | `id_usuario` | `nome`, `saldo_inicial` | 
-| `Categorias` | `id_categoria` | `id_usuario` | `nome`, `tipo` (Receita/Despesa) | 
-| `Transacoes` | `id_transacao` | `id_usuario`, `id_categoria`, `id_conta` | `data`, `valor`, `descricao` | 
-| `Orcamentos` | `id_orcamento` | `id_usuario`, `id_categoria` | `mes_ano`, `valor_orcado` | 
-
-## IV. Frontend (React/MUI/Tailwind)
-
-### A. Componentes e Bibliotecas Principais
-
-| Componente | Função | Tecnologia | 
- | ----- | ----- | ----- | 
-| Layout | Estrutura principal: Sidebar (Menu), Header. | React, MUI (`Drawer`, `AppBar`) | 
-| Autenticação | Telas de Login/Cadastro/Recuperar. | React, Tailwind CSS | 
-| Gráficos | Renderização de dados financeiros (linha, pizza). | Recharts ou Chart.js (com wrapper React) | 
-| Tabelas | Exibição e filtragem de transações. | MUI (`Table`, `DataGrid`) | 
-| Formulários | Adição e edição de transações. | React, MUI (`TextField`, `DatePicker`) | 
-
-### B. Configuração de Estilo (MUI + Tailwind)
-
-1. **Instalação:** Instalar `tailwindcss`, `@mui/material`, `emotion`.
-
-2. **Conflito:** No arquivo principal (ex: `App.jsx`), utilizar o componente `<StyledEngineProvider injectFirst>` do MUI para garantir que as classes Tailwind tenham precedência sobre os estilos padrão do Material UI, permitindo a customização visual.
-
-## 📝 Documentação da API (REST)
-
-O backend segue os princípios RESTful, com rotas protegidas por autenticação via JWT.
-
-### **1. Autenticação (Auth)**
-
-| Método | Endpoint | Descrição | Requisitos |
-| :--- | :--- | :--- | :--- |
-| **POST** | `/api/auth/register` | Cria um novo usuário e gera 5 categorias iniciais. | `nome`, `email`, `senha` |
-| **POST** | `/api/auth/login` | Autentica o usuário e retorna o Token JWT. | `email`, `senha` |
-
-### **2. Transações (Transactions)**
-
-> 🔐 Todas as rotas abaixo exigem o Header `Authorization: Bearer <token>`.
-
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| **GET** | `/api/transacoes` | Retorna todas as transações do usuário logado. |
-| **POST** | `/api/transacoes` | Cria uma nova transação (Entrada ou Saída). |
-| **PUT** | `/api/transacoes/:id` | Atualiza os dados de uma transação específica. |
-| **DELETE** | `/api/transacoes/:id` | Remove uma transação permanentemente. |
-
-### **3. Categorias (Categories)**
-
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| **GET** | `/api/categorias` | Lista as categorias personalizadas do usuário. |
-| **POST** | `/api/categorias` | Cria uma nova categoria com nome e tipo (Receita/Despesa). |
-
----
-
-
-## 🗄️ Modelagem de Dados (DER)
-
-A estrutura do banco de dados foi projetada para garantir o isolamento total dos dados por usuário e a integridade referencial entre transações e categorias.
+O banco de dados utiliza PostgreSQL com as seguintes tabelas principais:
 
 ![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
 
-### **Dicionário de Dados**
+- **Usuarios:**
+  - `id_usuario` (PK): Identificador único do usuário.
+  - `email`: Endereço de e-mail único.
+  - `senha_hash`: Hash da senha criptografada com Bcrypt.
+  - `nome`: Nome completo do usuário.
+  - Relacionamento: 1:N com Categorias e Transacoes (isolamento de dados por usuário).
 
-* **Tabela `usuarios`:** Armazena as informações de perfil e credenciais criptografadas (hash) para autenticação segura via JWT.
-* **Tabela `categorias`:** Define as classificações financeiras.
-    * **Inteligência de Registro:** No momento do cadastro, o sistema executa um `bulkCreate` para gerar categorias padrão (Alimentação, Salário, Lazer) vinculadas ao novo `id_usuario`.
-    * **Campo `tipo`:** Atua como um `ENUM` para validar se a categoria pertence ao fluxo de **Receita** ou **Despesa**.
-* **Tabela `transacoes`:** O núcleo financeiro do sistema. Armazena valores decimais, datas e descrições, vinculando-se obrigatoriamente a uma categoria e a um usuário.
+- **Categorias:**
+  - `id_categoria` (PK): Identificador único da categoria.
+  - `id_usuario` (FK): Referência ao usuário proprietário.
+  - `nome`: Nome da categoria (ex: Alimentação, Salário).
+  - `tipo`: ENUM ('Receita' ou 'Despesa').
+  - Relacionamento: 1:N com Transacoes.
 
+- **Transacoes:**
+  - `id_transacao` (PK): Identificador único da transação.
+  - `id_usuario` (FK): Referência ao usuário.
+  - `id_categoria` (FK): Referência à categoria.
+  - `data`: Data da transação.
+  - `valor`: Valor decimal da transação.
+  - `descricao`: Descrição opcional.
+  - Relacionamento: N:1 com Usuarios e Categorias.
 
+Regras de negócio: Dados isolados por usuário; exclusão em cascata para limpeza automática; categorias padrão criadas automaticamente no cadastro.
 
-### **Regras de Negócio e Relacionamentos**
+## Principais Endpoints/Funcionalidades
 
-* **Relacionamento 1:N (Usuário ⮕ Transações/Categorias):** Garante que cada usuário visualize apenas seus próprios dados, filtrados rigorosamente pelo `id_usuario` no backend.
-* **Relacionamento 1:N (Categoria ⮕ Transações):** Permite a agregação de dados para a geração de inteligência visual (ex: Gráficos de Pizza/Donut).
-* **Exclusão em Cascata (ON DELETE CASCADE):** Configurado para que, caso um usuário remova sua conta, todos os registros relacionados sejam apagados automaticamente, garantindo a limpeza do banco **Neon PostgreSQL** e conformidade com privacidade de dados.
+A API segue princípios RESTful, com rotas públicas para autenticação e protegidas (JWT) para operações financeiras.
 
----
+### Autenticação
+- **POST /api/auth/register**
+  - Corpo: `{ "nome": "string", "email": "string", "senha": "string" }`
+  - Resposta: `{ "message": "Usuário criado com sucesso", "token": "jwt_token" }`
+  - Cria usuário e gera categorias padrão.
 
-## 📋 Requisitos Funcionais e Casos de Uso (UML)
+- **POST /api/auth/login**
+  - Corpo: `{ "email": "string", "senha": "string" }`
+  - Resposta: `{ "token": "jwt_token", "user": { "id": number, "nome": "string" } }`
+  - Autentica e retorna token JWT.
 
-O sistema foi modelado para oferecer uma experiência fluida, utilizando padrões de interação que automatizam processos de backend e facilitam o onboarding do usuário.
+### Transações (Protegidas)
+- **GET /api/transacoes**
+  - Headers: `Authorization: Bearer <token>`
+  - Resposta: Lista de transações do usuário.
 
-![Requisitos Funcionais e Casos de Uso (UML)](public/uml_dashboard_financeiro.svg)
+- **POST /api/transacoes**
+  - Headers: `Authorization: Bearer <token>`
+  - Corpo: `{ "id_categoria": number, "data": "YYYY-MM-DD", "valor": number, "descricao": "string" }`
+  - Resposta: Transação criada.
 
-### **Detalhamento das Funcionalidades**
+- **PUT /api/transacoes/:id**
+  - Headers: `Authorization: Bearer <token>`
+  - Corpo: Campos a atualizar.
+  - Resposta: Transação atualizada.
 
-#### **1. Fluxo de Autenticação e Onboarding**
-* **Cadastrar Conta:** Ao realizar o registro, o sistema executa automaticamente a criação de categorias padrão através de uma relação de `<<include>>`, garantindo que o usuário possua estrutura imediata para lançamentos.
-* **Fazer Login:** Acesso seguro às rotas protegidas através de validação de **Token JWT** no backend.
-* **Preencher Dados Demo:** Funcionalidade de `<<extend>>` no login, projetada estrategicamente para que recrutadores visualizem o dashboard populado instantaneamente, removendo a fricção do cadastro manual.
+- **DELETE /api/transacoes/:id**
+  - Headers: `Authorization: Bearer <token>`
+  - Resposta: Confirmação de exclusão.
 
-#### **2. Gestão Financeira e Visualização**
-* **Visualizar Dashboard:** Centralização de informações consumindo dados processados pelo **MUI X Charts**, permitindo análise de saldos e distribuições.
-* **Gerenciar Transações:** Controle total (**CRUD**) sobre entradas e saídas financeiras para manutenção do histórico pessoal.
-* **Criar Categorias:** Além das sementes automáticas, o usuário possui autonomia para personalizar novas categorias de gasto ou receita.
+### Categorias (Protegidas)
+- **GET /api/categorias**
+  - Headers: `Authorization: Bearer <token>`
+  - Resposta: Lista de categorias do usuário.
 
-#### **3. Personalização de Interface**
-* **Alternar Tema (Light/Dark):** Implementação via `ThemeContext` que permite a mudança global da estética, ajustando dinamicamente as cores dos gráficos e componentes para manter a legibilidade em qualquer modo.
+- **POST /api/categorias**
+  - Headers: `Authorization: Bearer <token>`
+  - Corpo: `{ "nome": "string", "tipo": "Receita|Despesa" }`
+  - Resposta: Categoria criada.
+
+## Como Rodar o Projeto
+
+### Pré-requisitos
+- Node.js (versão 16 ou superior)
+- npm ou yarn
+- Conta no Neon.tech para PostgreSQL
+
+### 1. Clonar o Repositório
+```bash
+git clone https://github.com/seu-usuario/dashboard-financeiro-projeto-pi.git
+cd dashboard-financeiro-projeto-pi
+```
+
+### 2. Configurar o Backend
+1. Navegue para a pasta backend:
+   ```bash
+   cd backend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Crie um arquivo `.env` na raiz do backend com:
+   ```
+   DB_HOST=seu_host_neon
+   DB_PORT=5432
+   DB_NAME=seu_banco
+   DB_USER=seu_usuario
+   DB_PASSWORD=sua_senha
+   JWT_SECRET=sua_chave_secreta_jwt
+   PORT=5000
+   ```
+4. Execute as migrações (se aplicável) e inicie o servidor:
+   ```bash
+   npm run dev
+   ```
+
+### 3. Configurar o Frontend
+1. Em outro terminal, navegue para a pasta frontend:
+   ```bash
+   cd ../frontend
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+### 4. Acessar a Aplicação
+- Frontend: http://localhost:5173 (porta padrão do Vite)
+- Backend: http://localhost:5000
+
+Para produção, configure Vercel para deploy automático.
+
+## Otimização de Performance
+- **Anti-Cold Start:** Requisição silenciosa para `/api/auth/health` no carregamento do login para "acordar" o banco Neon.
+- **Estados de Loading:** Feedback visual em botões para evitar múltiplos cliques.
+
+## Funcionalidades Adicionais
+- **Modo Demo:** Botão no login para preencher dados de teste.
+- **Semente Automática:** Categorias padrão criadas no cadastro.
+- **Tema Dinâmico:** Alternância Light/Dark com ajuste automático nos gráficos.
