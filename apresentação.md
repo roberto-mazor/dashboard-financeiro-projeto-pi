@@ -7,8 +7,35 @@
 - **JWT para Autenticação**: Tokens JWT garantem acesso seguro às rotas protegidas.
 - **Isolamento de Dados**: Cada usuário vê apenas suas próprias transações e categorias.
 
+#### Como o Axios é usado no projeto
+O frontend utiliza `Axios` para realizar todas as chamadas à API de forma centralizada e segura. A instância `frontend/src/services/api.js` define a `baseURL` da API usando a variável de ambiente `VITE_API_URL`, o que facilita a configuração entre desenvolvimento e produção.
+
+```javascript
+import axios from 'axios';
+
+const api = axios.create({  // Criação da instância centralizada da API
+  baseURL: import.meta.env.VITE_API_URL, // Usa variáveis de ambiente para definir a URL (evita expor o endereço fixo no código)
+});
+```
+
+Além disso, um interceptor de requisição injeta automaticamente o token JWT salvo no `localStorage` em todas as chamadas:
+
+```javascript
+api.interceptors.request.use((config) => { // INTERCEPTOR: Um polcial que verifica cada requisição antes dela sair
+  const token = localStorage.getItem('token'); // Recupera o (Token JWT) que foi salvo no navegador durante o login
+  if (token) {
+    // Injeta o token no cabeçalho Authorization padrão Bearer
+    // Isso permite que o backend identifique QUEM está fazendo a requisição
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+```
+
+Isso significa que qualquer componente que use `api.get(...)`, `api.post(...)` ou `api.put(...)` envia o token de autenticação sem precisar repetir esse código em todos os lugares. Essa abordagem mantém o frontend limpo e garante que todas as requisições a rotas protegidas sejam autenticadas automaticamente.
+
 #### Como Funciona a Lógica do Login
-Exemplo detalhado, explicar do fluxo completo de autenticação desde o frontend até o backend:
+Exemplo detalhado, explica do fluxo completo de autenticação desde o frontend até o backend:
 
 ##### Fluxo no Frontend (Login.jsx)
 No arquivo `frontend/src/pages/Login.jsx`, o login é gerenciado através de um formulário React:
@@ -406,11 +433,11 @@ O `dashboardController.js` é responsável por gerar o resumo financeiro que ali
 exports.getResumo = async (req, res) => {
     try {
         const id_usuario = req.usuario?.id || req.user?.id; // ID do usuário extraído do JWT
-        const { data_inicio, data_fim } = req.query; // Filtros de período enviados pelo frontend
+        const { data_inicio, data_fim } = req.query; // Filtros de período enviados pelo Calendario frontend 
 
         // 1. BUSCA FILTRADA (para entradas e saídas dentro do período)
         const transacoesMes = await Transacao.findAll({
-            where: {
+            where: {  // Busca o histórico completo, ignorando o filtro de data atual
                 id_usuario,
                 data: { [Op.between]: [new Date(data_inicio + 'T00:00:00Z'), new Date(data_fim + 'T23:59:59Z')] }
             },
@@ -442,12 +469,12 @@ exports.getResumo = async (req, res) => {
             if (tipo === 'receita') entradasTotal += valor;
             else if (tipo === 'despesa') saidasTotal += valor;
         });
-
+          // Retorno formatado para os componentes do Frontend
         res.json({
-            entradas: parseFloat(entradasMes.toFixed(2)),
-            saidas: parseFloat(saidasMes.toFixed(2)),
+            entradas: parseFloat(entradasMes.toFixed(2)), //Card de Receitas
+            saidas: parseFloat(saidasMes.toFixed(2)),     //Card de Despesas
             saldo: parseFloat((entradasTotal - saidasTotal).toFixed(2)),
-            totalTransacoesPeriodo: transacoesMes.length
+            totalTransacoesPeriodo: transacoesMes.length //Quantidade de lançamentos no intervalo selecionado
         });
 
     } catch (error) {
@@ -781,6 +808,11 @@ module.exports = { sequelize, testConnection };
 - Define relacionamentos e integridade referencial no código.
 - Facilita a manutenção do banco em PostgreSQL sem mudanças em múltiplos arquivos.
 
+---
+
+
+
+---
 
 ### 5. Anti-Cold Start
 - Requisição silenciosa para `/api/auth/health` no carregamento do login para "acordar" o banco Neon serverless e evitar latências.
