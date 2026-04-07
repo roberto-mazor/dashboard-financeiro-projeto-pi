@@ -1,4 +1,4 @@
-# Apresentação do Dashboard Financeiro Inteligente
+# Apresentação do Dashboard Financeiro
 
 ## Funcionalidades Principais
 
@@ -18,30 +18,32 @@ No arquivo `frontend/src/pages/Login.jsx`, o login é gerenciado através de um 
 
 ```javascript
 useEffect(() => {
+  // Função assíncrona para "acordar" o banco de dados serverless e evitar cold start
   const acordarBanco = async () => {
     try {
-      await api.get('/auth/health').catch(() => null);
+      // Faz uma requisição GET para o endpoint /auth/health
+      await api.get('/auth/health').catch(() => null); // Ignora erros silenciosamenão faz nadante
     } catch (e) {}
   };
-  acordarBanco();
-}, []);
+  acordarBanco(); // Executa a função imediatamente ao montar o componente
+}, []); 
 ```
 
 - **Função handleLogin**: Quando o formulário é submetido, a função faz uma requisição POST para `/auth/login`:
 
 ```javascript
 const handleLogin = async (e) => {
-  if (e) e.preventDefault();
-  setLoading(true);
+  if (e) e.preventDefault(); // Previne o comportamento padrão do formulário se evento existir
+  setLoading(true); // Ativa o estado de carregamento para feedback visual
   try {
-    const response = await api.post('/auth/login', { email, senha });
-    localStorage.setItem('token', response.data.token);
+    const response = await api.post('/auth/login', { email, senha }); // Envia requisição POST para o endpoint de login com email e senha
+    localStorage.setItem('token', response.data.token); // Salva o token JWT e dados do usuário no localStorage para autenticação futura
     localStorage.setItem('user', JSON.stringify(response.data.user));
-    navigate('/dashboard');
+    navigate('/dashboard'); // Redireciona o usuário para o dashboard após login bem-sucedido
   } catch (error) {
-    alert(error?.response?.data?.message || 'Erro ao conectar.');
+    alert(error?.response?.data?.message || 'Erro ao conectar.'); // Exibe mensagem de erro do servidor ou mensagem padrão
   } finally {
-    setLoading(false);
+    setLoading(false); // Desativa o estado de carregamento
   }
 };
 ```
@@ -53,6 +55,7 @@ No arquivo `backend/src/controllers/usuarioController.js`, a função `login` pr
 
 1. **Busca do Usuário**: O e-mail é usado para encontrar o usuário no banco PostgreSQL:
    ```javascript
+   // Busca o usuário no banco de dados usando o email fornecido
    const usuario = await Usuario.findOne({ where: { email } });
    if (!usuario) {
      return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
@@ -61,14 +64,16 @@ No arquivo `backend/src/controllers/usuarioController.js`, a função `login` pr
 
 2. **Verificação da Senha**: A senha fornecida é comparada com o hash armazenado usando Bcrypt:
    ```javascript
+   // Compara a senha fornecida com o hash armazenado no banco usando bcrypt
    const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
-   if (!senhaValida) {
+   if (!senhaValida) { 
      return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
    }
    ```
 
 3. **Geração do Token JWT**: Se a senha for válida, um token é gerado com o ID do usuário:
    ```javascript
+   // Gera um token JWT contendo o ID do usuário, válido por 1 dia
    const token = jwt.sign(
      { id: usuario.id_usuario }, 
      process.env.JWT_SECRET, 
@@ -78,6 +83,7 @@ No arquivo `backend/src/controllers/usuarioController.js`, a função `login` pr
 
 4. **Resposta**: O token e dados básicos do usuário são retornados:
    ```javascript
+   // Retorna resposta JSON com mensagem de sucesso, token e dados do usuário
    res.json({
      message: 'Login realizado com sucesso!',
      token,
@@ -90,15 +96,17 @@ Para rotas protegidas, o middleware verifica o token JWT:
 
 ```javascript
 const authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.header('Authorization')?.replace('Bearer ', '');   // Extrai o token JWT do header Authorization, removendo o prefixo 'Bearer '
   if (!token) return res.status(401).json({ error: 'Acesso negado.' });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Verifica e decodifica o token usando a chave secreta
+    // Anexa os dados decodificados (como ID do usuário) à requisição
     req.usuario = decoded;
+    // Passa o controle para o próximo middleware ou rota
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Token inválido.' });
+    res.status(401).json({ error: 'Token inválido.' });   // Se o token for inválido, retorna erro
   }
 };
 ```
@@ -122,28 +130,28 @@ Cria uma nova categoria ou reativa uma existente:
 exports.criarCategoria = async (req, res) => {
   try {
     let { nome, tipo } = req.body;
-    const id_usuario = req.usuario.id; // Obtém do JWT via middleware
+    const id_usuario = req.usuario.id; // Obtém o ID do usuário do token JWT
     
-    // Formata o tipo (primeira letra maiúscula)
+    // Formata o tipo para ter a primeira letra maiúscula
     if (tipo) {
       tipo = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
     }
 
-    // Verifica se já existe uma categoria com mesmo nome para o usuário
+    // Verifica se já existe uma categoria com o mesmo nome para o usuário
     const categoriaExistente = await Categoria.findOne({ where: { nome, id_usuario } });
 
     if (categoriaExistente) {
       if (categoriaExistente.status === 0) {
-        // Reativa categoria excluída anteriormente
+        // Reativa a categoria excluída anteriormente
         categoriaExistente.status = 1;
         categoriaExistente.tipo = tipo;
-        await categoriaExistente.save();
+        await categoriaExistente.save(); O //.save Sequelize identifica o que mudou e executa um UPDATE automático no PostgreSQL.
         return res.status(200).json(categoriaExistente);
       }
       return res.status(400).json({ error: 'Categoria já ativa.' });
     }
 
-    // Cria nova categoria
+    // Cria uma nova categoria se não existir
     const nova = await Categoria.create({ 
       nome, 
       tipo, 
@@ -169,7 +177,7 @@ Retorna apenas categorias ativas do usuário logado:
 ```javascript
 exports.listarCategorias = async (req, res) => {
   try {
-    const id_usuario = req.usuario.id;
+    const id_usuario = req.usuario.id;  // Busca apenas categorias ativas do usuário, ordenadas alfabeticamente
     const categorias = await Categoria.findAll({ 
       where: { id_usuario, status: 1 }, // Apenas ativas
       order: [['nome', 'ASC']] // Ordenadas alfabeticamente
@@ -187,20 +195,23 @@ Atualiza nome e/ou tipo de uma categoria existente:
 ```javascript
 exports.editarCategoria = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; 
     const { nome, tipo } = req.body;
     const id_usuario = req.usuario.id;
 
+    // Busca a categoria pelo ID e verifica se pertence ao usuário
     const categoria = await Categoria.findOne({ where: { id_categoria: id, id_usuario } });
 
     if (!categoria) {
       return res.status(404).json({ error: 'Categoria não encontrada.' });
     }
 
+    // Formata o tipo se fornecido, mantendo a primeira letra maiúscula no banco
     if (tipo) {
       categoria.tipo = tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
     }
     
+    // Atualiza o nome se fornecido, senão mantém o atual
     categoria.nome = nome || categoria.nome;
     await categoria.save();
 
@@ -220,6 +231,7 @@ exports.deletarCategoria = async (req, res) => {
     const { id } = req.params;
     const id_usuario = req.usuario.id;
 
+    // Atualiza o status da categoria para 0 (soft delete) se pertencer ao usuário
     await Categoria.update(
       { status: 0 }, 
       { where: { id_categoria: id, id_usuario } }
@@ -246,12 +258,13 @@ exports.criarTransacao = async (req, res) => {
     const { valor, data, descricao, id_categoria } = req.body;
     const id_usuario = req.usuario.id;
 
-    // Validar se a categoria existe e pertence ao usuário
+    // Valida se a categoria existe e pertence ao usuário
     const categoria = await Categoria.findOne({ where: { id_categoria, id_usuario } });
     if (!categoria) {
       return res.status(404).json({ error: 'Categoria não encontrada ou não pertence ao usuário.' });
     }
 
+    // Cria a nova transação vinculada ao usuário e categoria
     const novaTransacao = await Transacao.create({
       valor,
       data,
@@ -285,13 +298,16 @@ exports.listarTransacoes = async (req, res) => {
     // PRIORIDADE: Se o usuário estiver buscando um texto, 
     // ignorar o filtro de data para facilitar a localização global.
     if (busca) {
+      // Busca case-insensitive na descrição
       onde.descricao = { [Op.iLike]: `%${busca}%` };
     } 
     // Caso NÃO haja busca por texto, aplicar o filtro de data do calendário
     else if (data_inicio && data_fim) {
+      // Filtra transações dentro do intervalo de datas
       onde.data = { [Op.between]: [data_inicio, data_fim] };
     }
 
+    // Busca transações com categoria incluída, ordenadas por data decrescente
     const transacoes = await Transacao.findAll({
       where: onde,
       include: [{ 
@@ -332,15 +348,15 @@ exports.editarTransacao = async (req, res) => {
       return res.status(404).json({ error: 'Transação não encontrada.' });
     }
 
-    // Se o usuário estiver mudando a categoria, verifica se a nova categoria existe
+    // Se o usuário estiver mudando a categoria, valida a nova categoria
     if (id_categoria) {
-      const categoriaExistente = await Categoria.findOne({ where: { id_categoria, id_usuario } });
+      const categoriaExistente = await Categoria.findOne({ where: { id_categoria, id_categoria } });
       if (!categoriaExistente) {
         return res.status(404).json({ error: 'Nova categoria não encontrada.' });
       }
     }
 
-    // Atualiza os campos (mantém o original se o campo não for enviado)
+    // Atualiza os campos fornecidos, mantendo os atuais se não enviados
     transacao.valor = valor || transacao.valor;
     transacao.data = data || transacao.data;
     transacao.descricao = descricao || transacao.descricao;
@@ -364,6 +380,7 @@ exports.deletarTransacao = async (req, res) => {
     const { id } = req.params;
     const id_usuario = req.usuario.id;
 
+    // Deleta a transação permanentemente se pertencer ao usuário
     const deletado = await Transacao.destroy({
       where: { id_transacao: id, id_usuario }
     });
@@ -377,7 +394,7 @@ exports.deletarTransacao = async (req, res) => {
 };
 ```
 
-**Em resumo**: O controlador de transações implementa isolamento rigoroso por usuário, validações de categoria, filtros inteligentes que priorizam busca textual sobre datas, e operações CRUD completas. A lógica de filtros no backend complementa perfeitamente o sistema de filtros do frontend, garantindo consistência nos dados exibidos.
+**Em resumo**: O controlador de transações implementa isolamento rigoroso por usuário, validações de categoria, filtros que priorizam busca textual sobre datas, e operações CRUD completas. A lógica de filtros no backend complementa perfeitamente o sistema de filtros do frontend, garantindo consistência nos dados exibidos.
 
 ### 3. Visualização de Dados
 - **Gráficos Interativos**: Utiliza MUI X Charts para gráficos de pizza (distribuição por categoria), barras (gastos diários) e comparações (entradas vs saídas).
@@ -385,7 +402,7 @@ exports.deletarTransacao = async (req, res) => {
 - **Tema Dinâmico**: Alternância entre modo claro e escuro, ajustando automaticamente os gráficos.
 
 ### 4. Filtros e Atualização em Tempo Real
-Exemplo detalhado, explicar como funciona o sistema de filtros e a atualização imediata dos gráficos:
+Exemplo detalhado, como funciona o sistema de filtros e a atualização imediata dos gráficos:
 
 #### Como o Filtro Funciona no Código
 No arquivo `frontend/src/pages/Dashboard.jsx`, o filtro é implementado através de um estado React chamado `filtros`, que contém:
@@ -403,12 +420,14 @@ Existe um `useEffect` que monitora mudanças no estado `filtros`:
 
 ```javascript
 useEffect(() => {
+  // Cria um timeout para debouncing, evitando requisições excessivas
   const delayDebounce = setTimeout(() => {
-    carregarDados();
+    carregarDados(); // Chama a função para carregar dados após 500ms
   }, 500);
 
+  // Limpa o timeout se o efeito for executado novamente antes do delay
   return () => clearTimeout(delayDebounce);
-}, [filtros]);
+}, [filtros]); // Executa quando o estado 'filtros' muda
 ```
 
 Quando `filtros` muda, após 500ms (debounce para evitar requisições excessivas), a função `carregarDados()` é chamada.
@@ -418,16 +437,19 @@ A função `carregarDados()` monta parâmetros da URL e faz requisições à API
 
 ```javascript
 const params = new URLSearchParams();
+// Adiciona parâmetros de filtro se existirem
 if (filtros.data_inicio) params.append('data_inicio', filtros.data_inicio);
 if (filtros.data_fim) params.append('data_fim', filtros.data_fim);
 if (filtros.busca) params.append('busca', filtros.busca);
 
+// Faz requisições paralelas para resumo, lista de transações e categorias
 const [resResumo, resLista, resCats] = await Promise.all([
   api.get(`/dashboard/resumo?${params.toString()}`), 
   api.get(`/transacoes?${params.toString()}`),
   api.get('/categorias')
 ]);
       
+// Atualiza os estados com os dados recebidos
 setResumo(resResumo.data);
 setTransacoes(resLista.data);
 setCategorias(resCats.data);
@@ -448,11 +470,37 @@ Dentro de `DashboardCharts.jsx`, os gráficos são calculados usando `useMemo` b
 
 Quando `transacoes` é atualizado pela API filtrada, os `useMemo` recalculam automaticamente os dados dos gráficos, fazendo com que eles sejam redesenhados em tempo real.
 
-**Em resumo**: O gráfico não tem filtro próprio. Ele acompanha automaticamente a mesma lista de transações que a tabela e o resumo, porque todos usam o mesmo estado `transacoes`. Isso cria uma experiência fluida onde filtro, tabela e gráficos estão sempre sincronizados.
+**Em resumo**: O gráfico não tem filtro próprio. Ele acompanha automaticamente a mesma lista de transações que a tabela e o resumo, pois todos usam o mesmo estado `transacoes`. Isso cria uma experiência fluida onde filtro, tabela e gráficos estão sempre sincronizados.
 
 ---
 
 ### Como Funciona a Estrutura de Tabelas do Banco de Dados
+
+![Diagrama Entidade-Relacionamento](public/der_dashboard_financeiro.svg)
+
+- **Usuarios:**
+  - `id_usuario` (PK): Identificador único do usuário.
+  - `email`: Endereço de e-mail único.
+  - `senha_hash`: Hash da senha criptografada com Bcrypt.
+  - `nome`: Nome completo do usuário.
+  - Relacionamento: 1:N com Categorias e Transacoes (isolamento de dados por usuário).
+
+- **Categorias:**
+  - `id_categoria` (PK): Identificador único da categoria.
+  - `id_usuario` (FK): Referência ao usuário proprietário.
+  - `nome`: Nome da categoria (ex: Alimentação, Salário).
+  - `tipo`: ENUM ('Receita' ou 'Despesa').
+  - Relacionamento: 1:N com Transacoes.
+
+- **Transacoes:**
+  - `id_transacao` (PK): Identificador único da transação.
+  - `id_usuario` (FK): Referência ao usuário.
+  - `id_categoria` (FK): Referência à categoria.
+  - `data`: Data da transação.
+  - `valor`: Valor decimal da transação.
+  - `descricao`: Descrição opcional.
+  - Relacionamento: N:1 com Usuarios e Categorias.
+
 Exemplo detalhado, explicando como as tabelas do banco de dados foram estruturadas, seus relacionamentos e como foram criadas usando Sequelize ORM, incluindo o script SQL equivalente.
 
 ##### Estrutura Geral das Tabelas
@@ -476,11 +524,12 @@ As tabelas são definidas através de modelos Sequelize no backend (`backend/src
 ```javascript
 const startServer = async () => {
   try {
+    // Testa a conexão com o banco de dados
     const isConnected = await testConnection();
     if (isConnected) {
+      // Sincroniza os modelos com o banco, criando/alterando tabelas automaticamente
       await sequelize.sync({ alter: true }); // Cria/altera tabelas automaticamente
       console.log('✅ Tabelas sincronizadas localmente.');
-      // ...
     }
   } catch (error) {
     console.error("❌ Falha ao iniciar o servidor local:", error);
@@ -550,13 +599,13 @@ O backend foi desenvolvido com Sequelize para mapear as entidades do sistema em 
 No `Usuario.js`, o modelo define o usuário e inclui `timestamps: true` para criar `createdAt` e `updatedAt` automaticamente:
 ```javascript
 const Usuario = sequelize.define('Usuario', {
-  id_usuario: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  nome: { type: DataTypes.STRING(100), allowNull: false },
-  email: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-  senha_hash: { type: DataTypes.STRING(255), allowNull: false },
+  id_usuario: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, // Chave primária auto-incremento
+  nome: { type: DataTypes.STRING(100), allowNull: false }, // Nome do usuário, obrigatório
+  email: { type: DataTypes.STRING(100), allowNull: false, unique: true }, // Email único, obrigatório
+  senha_hash: { type: DataTypes.STRING(255), allowNull: false }, // Hash da senha, obrigatório
 }, {
-  tableName: 'usuarios',
-  timestamps: true
+  tableName: 'usuarios', // Nome da tabela no banco
+  timestamps: true // Adiciona createdAt e updatedAt automaticamente
 });
 ```
 No `Categoria.js`, há referência ao usuário:
@@ -572,8 +621,8 @@ id_usuario: {
 ```
 No `Transacao.js`, as relações para usuário e categoria são definidas com `belongsTo`:
 ```javascript
-Transacao.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
+Transacao.belongsTo(Usuario, { foreignKey: 'id_usuario' }); // Relacionamento: transação pertence a um usuário
+Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'categoria' }); // Relacionamento: transação pertence a uma categoria
 ```
 Esses relacionamentos garantem que cada categoria e transação estejam ligadas ao usuário correto.
 
@@ -590,9 +639,9 @@ Esse comando compara os modelos com as tabelas existentes e cria ou ajusta as ta
 O arquivo `backend/src/config/db.js` configura a conexão com o Neon/Vercel:
 ```javascript
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
+  dialect: 'postgres', // Dialeto PostgreSQL
   dialectOptions: {
-    ssl: { require: true, rejectUnauthorized: false }
+    ssl: { require: true, rejectUnauthorized: false } // Configurações SSL para Neon
   }
 });
 ```
