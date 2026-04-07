@@ -482,9 +482,10 @@ exports.getResumo = async (req, res) => {
         // Soma entradas e saídas do período filtrado
         let entradasMes = 0;
         let saidasMes = 0;
-        transacoesMes.forEach(t => {
-            const valor = Math.abs(parseFloat(t.valor)) || 0;
+        transacoesMes.forEach(t => { //Percorre cada transação retornada do banco de dados
+            const valor = Math.abs(parseFloat(t.valor)) || 0; // Math.abs remove o sinal negativo e || 0 evita NaN
             const tipo = t.categoria?.tipo?.toLowerCase();
+            //Regra de Negócio: separa o que é entrada do que é saída para o cálculo dos cards
             if (tipo === 'receita') entradasMes += valor;
             else if (tipo === 'despesa') saidasMes += valor;
         });
