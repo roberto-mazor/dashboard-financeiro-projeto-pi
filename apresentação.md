@@ -537,6 +537,73 @@ CREATE TABLE transacoes (
 
 **Em resumo**: A estrutura usa relacionamentos 1:N para isolamento por usuário, com Sequelize gerenciando a criação/alteração automática das tabelas. Isso permite escalabilidade e consistência, com o script SQL servindo como referência para a estrutura subjacente no PostgreSQL.
 
+
+### Como o Sequelize foi usado na aplicação
+O backend foi desenvolvido com Sequelize para mapear as entidades do sistema em modelos e gerar a estrutura do banco de dados sem precisar escrever migrations manuais.
+
+- Modelos em `backend/src/models/`: `Usuario.js`, `Categoria.js`, `Transacao.js`.
+- Cada modelo usa `sequelize.define(...)` para definir campos, tipos e opções de tabela.
+- A conexão com o banco PostgreSQL é criada em `backend/src/config/db.js` usando `new Sequelize(process.env.DATABASE_URL, {...})`.
+- O servidor local chama `sequelize.sync({ alter: true })` em `backend/server.js` para sincronizar os modelos com o banco.
+
+##### Modelos e relacionamentos
+No `Usuario.js`, o modelo define o usuário e inclui `timestamps: true` para criar `createdAt` e `updatedAt` automaticamente:
+```javascript
+const Usuario = sequelize.define('Usuario', {
+  id_usuario: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  nome: { type: DataTypes.STRING(100), allowNull: false },
+  email: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+  senha_hash: { type: DataTypes.STRING(255), allowNull: false },
+}, {
+  tableName: 'usuarios',
+  timestamps: true
+});
+```
+No `Categoria.js`, há referência ao usuário:
+```javascript
+id_usuario: {
+  type: DataTypes.INTEGER,
+  allowNull: false,
+  references: {
+    model: Usuario,
+    key: 'id_usuario'
+  }
+}
+```
+No `Transacao.js`, as relações para usuário e categoria são definidas com `belongsTo`:
+```javascript
+Transacao.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
+```
+Esses relacionamentos garantem que cada categoria e transação estejam ligadas ao usuário correto.
+
+##### Criação do banco de dados com Sequelize
+A criação do banco é feita automaticamente no backend quando o servidor local inicia:
+```javascript
+const { sequelize, testConnection } = require('./src/config/db');
+// ...
+await sequelize.sync({ alter: true });
+```
+Esse comando compara os modelos com as tabelas existentes e cria ou ajusta as tabelas conforme necessário, incluindo colunas, chaves estrangeiras e índices.
+
+##### Conexão e inicialização
+O arquivo `backend/src/config/db.js` configura a conexão com o Neon/Vercel:
+```javascript
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: { require: true, rejectUnauthorized: false }
+  }
+});
+```
+Antes de iniciar o servidor, `testConnection()` usa `sequelize.authenticate()` para validar o acesso ao banco.
+
+##### Por que usar Sequelize aqui
+- Reduz SQL manual e foca no modelo de dados.
+- Garante criação automática das tabelas em desenvolvimento.
+- Define relacionamentos e integridade referencial no código.
+- Facilita a manutenção do banco em PostgreSQL sem mudanças em múltiplos arquivos.
+
 ---
 
 ### 5. Anti-Cold Start
