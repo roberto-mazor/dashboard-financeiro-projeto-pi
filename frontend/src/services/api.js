@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL, // Lê do .env
 });
 
 // Interceptor para incluir o token em todas as requisições automaticamente

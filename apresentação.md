@@ -785,8 +785,7 @@ Por exemplo, `api.get('/dashboard/resumo')` solicita o resumo financeiro do usu�
 Essa abordagem mantém frontend e backend integrados no mesmo ambiente Vercel, simplificando deploy e garantindo que a aplicação funcione com configurações centralizadas.
 
 Antes de sincronizar os modelos, o projeto valida se a conexão com o banco está ativa.
-O `testConnection()` chama `sequelize.authenticate()`, que testa a autenticação da conexão sem alterar nenhum modelo ou tabela. Se a conexão falhar, o servidor não continua a inicialização.
-/Isso garante que o backend não tente executar `sequelize.sync({ alter: true })` sem um banco válido.
+O `testConnection()` chama `sequelize.authenticate()`, que testa a autenticação da conexão sem alterar nenhum modelo ou tabela. Se a conexão falhar, o servidor não continua a inicialização. Isso garante que o backend não tente executar `sequelize.sync({ alter: true })` sem um banco válido.
 
 Exemplo de uso: 
 ```javascript
