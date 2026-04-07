@@ -1,5 +1,12 @@
 # Apresentação do Dashboard Financeiro
 
+Ideia inicial
+
+[![Figma Conceito Inicial](https://img.shields.io/badge/Figma-Conceito_Inicial-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/design/z8OB4J1RSkM7pRai3yc8ZK/Dashboard?t=GyoS2IpBb7zNBHNK-1)
+
+Designe Final
+[![Figma Design](https://img.shields.io/badge/Figma-Design_Prototyping-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/design/CZdLGj7cyji3jCrJi4L4MB/Dashboard-financeiro-projeto-PI-Senac?node-id=7-672&t=pyxfEt9dFdHOWcag-0)
+
 ## Funcionalidades Principais
 
 ### 1. Autenticação e Segurança
