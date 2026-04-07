@@ -778,23 +778,21 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 ```
 
-// No Vercel, o backend é implantado como um serviço serverless que expõe rotas REST via Express.
-// O Vercel injeta a variável de ambiente `DATABASE_URL` em tempo de execução, permitindo
-// que o backend estabeleça conexão segura com o Neon PostgreSQL.
-// O frontend também é hospedado no Vercel e consome essa API por meio de chamadas HTTP
-// para os endpoints expostos, como `/auth/login`, `/transacoes` e `/dashboard/resumo`.
-// Por exemplo, `api.get('/dashboard/resumo')` solicita o resumo financeiro do usuário ao backend,
-// e o backend responde com os dados processados e filtrados pelo `id_usuario` do JWT.
-// Essa abordagem mantém frontend e backend integrados no mesmo ambiente Vercel,
-// simplificando deploy e garantindo que a aplicação funcione com configurações centralizadas.
+No Vercel, o backend é implantado como um serviço serverless que expõe rotas REST via Express.
+O Vercel injeta a variável de ambiente `DATABASE_URL` em tempo de execução, permitindo que o backend estabeleça conexão segura com o Neon PostgreSQL.
+O frontend também é hospedado no Vercel e consome essa API por meio de chamadas HTTP para os endpoints expostos, como `/auth/login`, `/transacoes` e `/dashboard/resumo`.
+Por exemplo, `api.get('/dashboard/resumo')` solicita o resumo financeiro do usuário ao backend, e o backend responde com os dados processados e filtrados pelo `id_usuario` do JWT.
+Essa abordagem mantém frontend e backend integrados no mesmo ambiente Vercel, simplificando deploy e garantindo que a aplicação funcione com configurações centralizadas.
 
-// Antes de sincronizar os modelos, o projeto valida se a conexão com o banco está ativa.
-// O `testConnection()` chama `sequelize.authenticate()`, que testa a autenticação da conexão
-// sem alterar nenhum modelo ou tabela. Se a conexão falhar, o servidor não continua a inicialização.
-// Isso garante que o backend não tente executar `sequelize.sync({ alter: true })` sem um banco válido.
-// Exemplo de uso:
-// const isConnected = await sequelize.authenticate();
-// if (isConnected) { await sequelize.sync({ alter: true }); }
+Antes de sincronizar os modelos, o projeto valida se a conexão com o banco está ativa.
+O `testConnection()` chama `sequelize.authenticate()`, que testa a autenticação da conexão sem alterar nenhum modelo ou tabela. Se a conexão falhar, o servidor não continua a inicialização.
+/Isso garante que o backend não tente executar `sequelize.sync({ alter: true })` sem um banco válido.
+
+Exemplo de uso: 
+```javascript
+const isConnected = await sequelize.authenticate();
+if (isConnected) { await sequelize.sync({ alter: true }); }
+```
 
 Antes de iniciar o servidor, `testConnection()` usa `sequelize.authenticate()` para validar o acesso ao banco.
 
