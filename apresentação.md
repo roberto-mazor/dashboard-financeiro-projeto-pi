@@ -26,6 +26,7 @@ Ideia inicial
 [![Figma Conceito Inicial](https://img.shields.io/badge/Figma-Conceito_Inicial-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/design/z8OB4J1RSkM7pRai3yc8ZK/Dashboard?t=GyoS2IpBb7zNBHNK-1)
 
 2° tentativa com Next
+
 [![Preview Próxima Versão](https://img.shields.io/badge/Visualizar-Próxima_Atualização-blue?style=for-the-badge&logo=target)](/public/next_dashboard.jpg)
 
 Designe Final
