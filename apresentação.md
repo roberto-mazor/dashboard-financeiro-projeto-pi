@@ -396,6 +396,81 @@ exports.deletarTransacao = async (req, res) => {
 
 **Em resumo**: O controlador de transações implementa isolamento rigoroso por usuário, validações de categoria, filtros que priorizam busca textual sobre datas, e operações CRUD completas. A lógica de filtros no backend complementa perfeitamente o sistema de filtros do frontend, garantindo consistência nos dados exibidos.
 
+---
+
+#### Como Funciona o `dashboardController.js`
+O `dashboardController.js` é responsável por gerar o resumo financeiro que alimenta os cards de saldo e os gráficos no frontend. Ele calcula valores filtrados para o período selecionado e também o saldo acumulado de todas as transações do usuário.
+
+##### Função getResumo
+```javascript
+exports.getResumo = async (req, res) => {
+    try {
+        const id_usuario = req.usuario?.id || req.user?.id; // ID do usuário extraído do JWT
+        const { data_inicio, data_fim } = req.query; // Filtros de período enviados pelo frontend
+
+        // 1. BUSCA FILTRADA (para entradas e saídas dentro do período)
+        const transacoesMes = await Transacao.findAll({
+            where: {
+                id_usuario,
+                data: { [Op.between]: [new Date(data_inicio + 'T00:00:00Z'), new Date(data_fim + 'T23:59:59Z')] }
+            },
+            include: [{ model: Categoria, as: 'categoria' }]
+        });
+
+        // 2. BUSCA GLOBAL (para cálculo do saldo total/patrimônio)
+        const todasTransacoes = await Transacao.findAll({
+            where: { id_usuario },
+            include: [{ model: Categoria, as: 'categoria' }]
+        });
+
+        // Soma entradas e saídas do período filtrado
+        let entradasMes = 0;
+        let saidasMes = 0;
+        transacoesMes.forEach(t => {
+            const valor = Math.abs(parseFloat(t.valor)) || 0;
+            const tipo = t.categoria?.tipo?.toLowerCase();
+            if (tipo === 'receita') entradasMes += valor;
+            else if (tipo === 'despesa') saidasMes += valor;
+        });
+
+        // Calcula o saldo acumulado usando todas as transações do usuário
+        let entradasTotal = 0;
+        let saidasTotal = 0;
+        todasTransacoes.forEach(t => {
+            const valor = Math.abs(parseFloat(t.valor)) || 0;
+            const tipo = t.categoria?.tipo?.toLowerCase();
+            if (tipo === 'receita') entradasTotal += valor;
+            else if (tipo === 'despesa') saidasTotal += valor;
+        });
+
+        res.json({
+            entradas: parseFloat(entradasMes.toFixed(2)),
+            saidas: parseFloat(saidasMes.toFixed(2)),
+            saldo: parseFloat((entradasTotal - saidasTotal).toFixed(2)),
+            totalTransacoesPeriodo: transacoesMes.length
+        });
+
+    } catch (error) {
+        console.error('Erro no DashboardController:', error);
+        res.status(500).json({ error: 'Erro ao gerar resumo.' });
+    }
+};
+```
+
+// Exemplo de rota: `GET /dashboard/resumo?data_inicio=2026-04-01&data_fim=2026-04-30`
+// Essa rota é chamada pelo frontend quando o dashboard é carregado ou quando o usuário altera os filtros de período.
+// O frontend monta os parâmetros `data_inicio` e `data_fim` e faz a requisição para este endpoint,
+// recebendo em resposta os valores de entradas, saídas, saldo acumulado e total de transações do período.
+
+**Características**:
+- Validação de usuário via JWT (`req.usuario.id`).
+- Filtro de período usando `data_inicio` e `data_fim`.
+- Busca de transações com `include` de `Categoria` para distinguir `Receita` e `Despesa`.
+- Cálculo separado de período filtrado e saldo acumulado.
+- Retorna valores formatados e o número de transações para o período.
+
+---
+
 ### 3. Visualização de Dados
 - **Gráficos Interativos**: Utiliza MUI X Charts para gráficos de pizza (distribuição por categoria), barras (gastos diários) e comparações (entradas vs saídas).
 - **Cards de Resumo**: Exibe saldo total, entradas e saídas em tempo real.
@@ -645,7 +720,60 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   }
 });
 ```
+
+// No Vercel, o backend é implantado como um serviço serverless que expõe rotas REST via Express.
+// O Vercel injeta a variável de ambiente `DATABASE_URL` em tempo de execução, permitindo
+// que o backend estabeleça conexão segura com o Neon PostgreSQL.
+// O frontend também é hospedado no Vercel e consome essa API por meio de chamadas HTTP
+// para os endpoints expostos, como `/auth/login`, `/transacoes` e `/dashboard/resumo`.
+// Por exemplo, `api.get('/dashboard/resumo')` solicita o resumo financeiro do usuário ao backend,
+// e o backend responde com os dados processados e filtrados pelo `id_usuario` do JWT.
+// Essa abordagem mantém frontend e backend integrados no mesmo ambiente Vercel,
+// simplificando deploy e garantindo que a aplicação funcione com configurações centralizadas.
+
+// Antes de sincronizar os modelos, o projeto valida se a conexão com o banco está ativa.
+// O `testConnection()` chama `sequelize.authenticate()`, que testa a autenticação da conexão
+// sem alterar nenhum modelo ou tabela. Se a conexão falhar, o servidor não continua a inicialização.
+// Isso garante que o backend não tente executar `sequelize.sync({ alter: true })` sem um banco válido.
+// Exemplo de uso:
+// const isConnected = await sequelize.authenticate();
+// if (isConnected) { await sequelize.sync({ alter: true }); }
+
 Antes de iniciar o servidor, `testConnection()` usa `sequelize.authenticate()` para validar o acesso ao banco.
+
+```javascript
+
+/
+// O dotenv esconde informações sensíveis .env da URL do banco
+require('dotenv').config();
+const { Sequelize } = require('sequelize');
+// O Sequelize abstrai o SQL puro. Passando a URL do Neon e definindo o dialeto 'postgres'.
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: {
+    // O Neon exige conexões criptografadas (SSL). O 'rejectUnauthorized: false'
+    // é um ajuste técnico necessário para permitir a conexão em ambientes serverless como a Vercel.
+    ssl: {
+      require: true,
+      rejectUnauthorized: false 
+    }
+  }
+});
+const testConnection = async () => { // Antes de subir a API, este método 'authenticate' testa se a "ponte" com o banco está de pé.
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Conexão com o banco de dados Neon estabelecida com sucesso!');
+    return true;
+  } catch (error) {
+    console.error('❌ Não foi possível conectar ao banco de dados:', error);
+    return false;
+  }
+};
+// Exporta a instância 'sequelize' para ser usada nos Models 
+// e o 'testConnection' para ser usado no arranque do servidor (server.js).
+module.exports = { sequelize, testConnection };
+
+```
 
 ##### Por que usar Sequelize aqui
 - Reduz SQL manual e foca no modelo de dados.
@@ -653,7 +781,6 @@ Antes de iniciar o servidor, `testConnection()` usa `sequelize.authenticate()` p
 - Define relacionamentos e integridade referencial no código.
 - Facilita a manutenção do banco em PostgreSQL sem mudanças em múltiplos arquivos.
 
----
 
 ### 5. Anti-Cold Start
 - Requisição silenciosa para `/api/auth/health` no carregamento do login para "acordar" o banco Neon serverless e evitar latências.
