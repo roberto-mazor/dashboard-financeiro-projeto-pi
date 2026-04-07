@@ -1,5 +1,26 @@
 # Apresentação do Dashboard Financeiro
 
+## Tecnologias Utilizadas
+
+### Frontend
+- **React.js (Vite)**: Framework para interfaces dinâmicas e rápidas.
+- **Tailwind CSS**: Estilização utilitária e temas (Light/Dark).
+- **MUI X Charts**: Biblioteca para gráficos interativos.
+- **Lucide React**: Ícones leves.
+- **Axios**: Cliente HTTP com interceptores para autenticação.
+
+### Backend
+- **Node.js & Express**: Servidor web escalável.
+- **JWT**: Autenticação stateless.
+- **Bcrypt.js**: Hash de senhas.
+- **Sequelize**: ORM para PostgreSQL.
+
+### Banco de Dados
+- **PostgreSQL (Neon.tech)**: Banco relacional serverless.
+
+### Infraestrutura
+- **Vercel**: Hospedagem para frontend e backend.
+
 Ideia inicial
 
 [![Figma Conceito Inicial](https://img.shields.io/badge/Figma-Conceito_Inicial-F24E1E?style=for-the-badge&logo=figma)](https://www.figma.com/design/z8OB4J1RSkM7pRai3yc8ZK/Dashboard?t=GyoS2IpBb7zNBHNK-1)
@@ -826,27 +847,6 @@ module.exports = { sequelize, testConnection };
 
 ### 6. Interface Responsiva
 - Design adaptável para desktop e mobile, com componentes reutilizáveis em React.
-
-## Tecnologias Utilizadas
-
-### Frontend
-- **React.js (Vite)**: Framework para interfaces dinâmicas e rápidas.
-- **Tailwind CSS**: Estilização utilitária e temas (Light/Dark).
-- **MUI X Charts**: Biblioteca para gráficos interativos.
-- **Lucide React**: Ícones leves.
-- **Axios**: Cliente HTTP com interceptores para autenticação.
-
-### Backend
-- **Node.js & Express**: Servidor web escalável.
-- **JWT**: Autenticação stateless.
-- **Bcrypt.js**: Hash de senhas.
-- **Sequelize**: ORM para PostgreSQL.
-
-### Banco de Dados
-- **PostgreSQL (Neon.tech)**: Banco relacional serverless.
-
-### Infraestrutura
-- **Vercel**: Hospedagem para frontend e backend.
 
 ## Arquitetura
 O projeto usa arquitetura monolítica com separação clara entre frontend e backend, ambos hospedados em Vercel para escalabilidade. O backend fornece APIs RESTful, enquanto o frontend consome esses dados para renderizar a interface.
