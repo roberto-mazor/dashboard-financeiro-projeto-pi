@@ -8,7 +8,7 @@
 - **Isolamento de Dados**: Cada usuário vê apenas suas próprias transações e categorias.
 
 #### Como Funciona a Lógica do Login
-Como exemplo detalhado, vamos explicar o fluxo completo de autenticação desde o frontend até o backend:
+Exemplo detalhado, explicar do fluxo completo de autenticação desde o frontend até o backend:
 
 ##### Fluxo no Frontend (Login.jsx)
 No arquivo `frontend/src/pages/Login.jsx`, o login é gerenciado através de um formulário React:
@@ -113,7 +113,7 @@ Este middleware é usado em rotas como `/api/transacoes` e `/api/dashboard/resum
 - **Busca e Filtragem**: Pesquisa por descrição e filtro por período de datas.
 
 #### Como Funciona a Lógica das Categorias (categoriaController.js)
-Como exemplo detalhado, vamos explicar como o backend gerencia as categorias através do `categoriaController.js`:
+Exemplo detalhado, explicar como o backend gerencia as categorias através do `categoriaController.js`:
 
 ##### Função criarCategoria
 Cria uma nova categoria ou reativa uma existente:
@@ -235,7 +235,7 @@ exports.deletarCategoria = async (req, res) => {
 **Em resumo**: O sistema de categorias usa soft delete para preservar integridade referencial, isolamento por usuário via JWT, e validações para evitar duplicatas. Isso permite flexibilidade na gestão sem comprometer a consistência dos dados de transações.
 
 #### Como Funciona a Lógica das Transações (transacaoController.js)
-Como exemplo detalhado, vamos explicar como o backend gerencia as transações através do `transacaoController.js`:
+Exemplo detalhado, explicar como o backend gerencia as transações através do `transacaoController.js`:
 
 ##### Função criarTransacao
 Cria uma nova transação validando a categoria:
@@ -385,7 +385,7 @@ exports.deletarTransacao = async (req, res) => {
 - **Tema Dinâmico**: Alternância entre modo claro e escuro, ajustando automaticamente os gráficos.
 
 ### 4. Filtros e Atualização em Tempo Real
-Como exemplo detalhado, vamos explicar como funciona o sistema de filtros e a atualização imediata dos gráficos:
+Exemplo detalhado, explicar como funciona o sistema de filtros e a atualização imediata dos gráficos:
 
 #### Como o Filtro Funciona no Código
 No arquivo `frontend/src/pages/Dashboard.jsx`, o filtro é implementado através de um estado React chamado `filtros`, que contém:
@@ -449,6 +449,95 @@ Dentro de `DashboardCharts.jsx`, os gráficos são calculados usando `useMemo` b
 Quando `transacoes` é atualizado pela API filtrada, os `useMemo` recalculam automaticamente os dados dos gráficos, fazendo com que eles sejam redesenhados em tempo real.
 
 **Em resumo**: O gráfico não tem filtro próprio. Ele acompanha automaticamente a mesma lista de transações que a tabela e o resumo, porque todos usam o mesmo estado `transacoes`. Isso cria uma experiência fluida onde filtro, tabela e gráficos estão sempre sincronizados.
+
+---
+
+### Como Funciona a Estrutura de Tabelas do Banco de Dados
+Exemplo detalhado, explicando como as tabelas do banco de dados foram estruturadas, seus relacionamentos e como foram criadas usando Sequelize ORM, incluindo o script SQL equivalente.
+
+##### Estrutura Geral das Tabelas
+O banco de dados PostgreSQL (hospedado no Neon.tech) utiliza três tabelas principais para gerenciar usuários, categorias e transações. Todas as tabelas seguem princípios de isolamento por usuário, com chaves estrangeiras para garantir integridade referencial:
+
+- **usuarios**: Armazena dados dos usuários (nome, email, senha criptografada).
+- **categorias**: Categorias de transações (Receita ou Despesa), vinculadas a um usuário específico.
+- **transacoes**: Registros financeiros, vinculados a um usuário e uma categoria.
+
+##### Relacionamentos
+- Um usuário pode ter múltiplas categorias e transações (1:N).
+- Uma categoria pertence a um usuário e pode ter múltiplas transações (1:N).
+- Uma transação pertence a um usuário e uma categoria (N:1 para ambos).
+
+Isso garante isolamento de dados: cada usuário vê apenas suas próprias categorias e transações.
+
+##### Como as Tabelas Foram Criadas
+As tabelas são definidas através de modelos Sequelize no backend (`backend/src/models/`), que abstraem a criação e manipulação do banco. No ambiente local, as tabelas são sincronizadas automaticamente ao iniciar o servidor usando `sequelize.sync({ alter: true })` (linha 56 em `server.js`), que cria ou altera as tabelas conforme os modelos. Em produção (Vercel), o Neon gerencia a persistência, mas os modelos garantem a estrutura.
+
+**Exemplo de Sincronização no Código** (`backend/server.js`):
+```javascript
+const startServer = async () => {
+  try {
+    const isConnected = await testConnection();
+    if (isConnected) {
+      await sequelize.sync({ alter: true }); // Cria/altera tabelas automaticamente
+      console.log('✅ Tabelas sincronizadas localmente.');
+      // ...
+    }
+  } catch (error) {
+    console.error("❌ Falha ao iniciar o servidor local:", error);
+  }
+};
+```
+
+Isso evita a necessidade de migrations manuais, facilitando o desenvolvimento.
+
+##### Script SQL Equivalente
+Abaixo, o script SQL que representa a estrutura criada pelos modelos Sequelize. Este script pode ser executado diretamente no PostgreSQL para criar as tabelas manualmente (útil para debugging ou migração):
+
+```sql
+-- Tabela de usuários
+CREATE TABLE usuarios (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha_hash VARCHAR(255) NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de categorias
+CREATE TABLE categorias (
+  id_categoria SERIAL PRIMARY KEY,
+  nome VARCHAR(50) NOT NULL,
+  tipo ENUM('Receita', 'Despesa') NOT NULL,
+  id_usuario INTEGER NOT NULL,
+  status INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+
+-- Tabela de transações
+CREATE TABLE transacoes (
+  id_transacao SERIAL PRIMARY KEY,
+  valor DECIMAL(10,2) NOT NULL,
+  data DATE NOT NULL,
+  descricao VARCHAR(255),
+  id_usuario INTEGER NOT NULL,
+  id_categoria INTEGER NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+  FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria) ON DELETE CASCADE
+);
+```
+
+**Notas sobre o Script**:
+- `SERIAL`: Tipo PostgreSQL para auto-incremento (equivalente a INTEGER AUTO_INCREMENT).
+- `ENUM`: Tipo personalizado para restringir valores em 'tipo'.
+- `ON DELETE CASCADE`: Remove registros relacionados automaticamente (ex.: deletar usuário remove suas categorias e transações).
+- Timestamps (`createdAt`, `updatedAt`): Adicionados automaticamente pelo Sequelize quando `timestamps: true`.
+
+**Em resumo**: A estrutura usa relacionamentos 1:N para isolamento por usuário, com Sequelize gerenciando a criação/alteração automática das tabelas. Isso permite escalabilidade e consistência, com o script SQL servindo como referência para a estrutura subjacente no PostgreSQL.
+
+---
 
 ### 5. Anti-Cold Start
 - Requisição silenciosa para `/api/auth/health` no carregamento do login para "acordar" o banco Neon serverless e evitar latências.
