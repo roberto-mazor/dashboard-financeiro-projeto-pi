@@ -1,0 +1,13 @@
+{
+  "id_categoria": 67,
+  "nome": "test2",
+  "tipo": "Despesa",
+  "id_usuario": 6,
+  "status": 1
+}
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiaWF0IjoxNzc1NzU2OTM4LCJleHAiOjE3NzU4NDMzMzh9.CjrcB3AxbJLn7DoTD45ZaDzUVDYP6D2n6Fosv7JIUBM
+
+
+?data_inicio=2025/12/01&data_fim=2026/04/09
+?data_inicio=2025-12-01&data_fim=2026-04-09
