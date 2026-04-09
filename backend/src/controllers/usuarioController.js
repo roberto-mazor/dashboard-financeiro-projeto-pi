@@ -25,7 +25,7 @@ exports.registrar = async (req, res) => {
             senha_hash
         });
 
-        // 🚀 PROTEÇÃO: Criar categorias padrão dentro de um try/catch isolado
+        // PROTEÇÃO: Criar categorias padrão dentro de um try/catch isolado
         // Isso evita que um erro bobo de DB aborte todo o registro do usuário
         try {
             await Categoria.bulkCreate([
