@@ -52,7 +52,7 @@ exports.listarTransacoes = async (req, res) => {
             include: [{ 
                 model: Categoria, 
                 as: 'categoria', 
-                attributes: ['nome', 'tipo', 'status'] // Incluímos o status, mas sem filtrar
+                attributes: ['nome', 'tipo', 'status']
             }],
             order: [['data', 'DESC']]
 });
