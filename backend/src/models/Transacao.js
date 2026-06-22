@@ -1,8 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const Usuario = require('./Usuario');
-const Categoria = require('./Categoria');
-const Cartao = require('./Cartao');
 
 const Transacao = sequelize.define('Transacao', {
   id_transacao: {
@@ -37,9 +34,7 @@ const Transacao = sequelize.define('Transacao', {
   timestamps: true,
 });
 
-// Relacionamentos
-Transacao.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-Transacao.belongsTo(Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
-Transacao.belongsTo(Cartao, { foreignKey: 'id_cartao', as: 'cartao' });
+// Nota: Os relacionamentos belongsTo(Usuario), belongsTo(Categoria) e belongsTo(Cartao) 
+// foram centralizados no arquivo db.js para extinguir a dependência circular.
 
 module.exports = Transacao;

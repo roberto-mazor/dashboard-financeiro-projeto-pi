@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db'); 
-const Usuario = require('./Usuario');
+const { sequelize } = require('../config/db');
 
 const Categoria = sequelize.define('Categoria', {
   id_categoria: {
@@ -20,18 +19,21 @@ const Categoria = sequelize.define('Categoria', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Usuario,
+      model: 'usuarios', // Alterado para string para evitar carregar o arquivo Usuario.js aqui
       key: 'id_usuario'
     }
   },
-status: {
-  type: DataTypes.INTEGER,
-  allowNull: false,
-  defaultValue: 1
-}
+  status: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  }
 }, {
   tableName: 'categorias',
   timestamps: false 
 });
+
+// Nota: O relacionamento Categoria.belongsTo(Usuario) e Categoria.hasMany(Transacao)
+// foram centralizados com sucesso no arquivo db.js.
 
 module.exports = Categoria;

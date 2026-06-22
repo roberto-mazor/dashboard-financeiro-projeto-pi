@@ -1,51 +1,33 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const Usuario = require('./Usuario');
 
-const Cartao = sequelize.define('Cartao', {
-  id_cartao: {
+const Usuario = sequelize.define('Usuario', {
+  id_usuario: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   nome: {
     type: DataTypes.STRING(100),
-    allowNull: false, // Ex: "Nubank Roxinho"
-  },
-  bandeira: {
-    type: DataTypes.STRING(50),
-    allowNull: false, // Ex: "Visa", "Mastercard"
-  },
-  limite_total: {
-    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
-  limite_disponivel: {
-    type: DataTypes.DECIMAL(10, 2),
+  email: {
+    type: DataTypes.STRING(100),
     allowNull: false,
-  },
-  dia_vencimento: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    unique: true,
     validate: {
-      min: 1,
-      max: 31,
+      isEmail: true, // Validação automática de formato de e-mail
     },
   },
-  dia_fechamento: {
-    type: DataTypes.INTEGER,
+  senha_hash: {
+    type: DataTypes.STRING(255),
     allowNull: false,
-    validate: {
-      min: 1,
-      max: 31,
-    },
   },
 }, {
-  tableName: 'cartoes',
-  timestamps: true,
+  tableName: 'usuarios', // Nome da tabela no banco
+  timestamps: true,      // Cria automaticamente colunas createdAt e updatedAt
 });
 
-// Relacionamentos
-Cartao.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+// Nota: Todos os relacionamentos hasMany (Cartao, Transacao, Categoria) foram centralizados com segurança no db.js.
 
-module.exports = Cartao;
+module.exports = Usuario;
