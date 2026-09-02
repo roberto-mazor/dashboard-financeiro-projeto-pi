@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cartaoController = require('../controllers/cartaoController');
-const authMiddleware = require('../middlewares/authMiddleware'); 
+const authMiddleware = require('../middleware/authMiddleware'); 
 
 router.use(authMiddleware);
 
