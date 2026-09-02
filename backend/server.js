@@ -16,11 +16,14 @@ const authRoutes = require('./src/routes/authRoutes');
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
 const transacaoRoutes = require('./src/routes/transacaoRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const cartaoRoutes = require('./src/routes/cartaoRoutes');
+
 
 // Models
 require('./src/models/Usuario');
 require('./src/models/Categoria');
 require('./src/models/Transacao');
+require('./src/models/Cartao');
 
 const app = express();
 
@@ -45,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/transacoes', transacaoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/cartoes', cartaoRoutes);
 
 // Configuração de Inicialização para ambiente LOCAL
 if (process.env.NODE_ENV !== 'production') {
