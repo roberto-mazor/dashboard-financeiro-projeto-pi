@@ -5,7 +5,7 @@ require('pg');
 
 const express = require('express');
 const cors = require('cors');
-const { sequelize, testConnection } = require('./src/config/db');
+const { sequelize } = require('./src/config/db');
 
 // Importar dotenv apenas para ambiente local
 if (process.env.NODE_ENV !== 'production') {
@@ -55,7 +55,8 @@ if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3001;
     const startServer = async () => {
         try {
-            const isConnected = await testConnection();
+            const isConnected = await sequelize.authenticate();
+            console.log(' Conexão com o banco de dados estabelecida com sucesso.');
             if (isConnected) {
                 await sequelize.sync({ alter: true });
                 console.log('✅ Tabelas sincronizadas localmente.');
