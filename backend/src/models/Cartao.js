@@ -7,13 +7,21 @@ const Cartao = sequelize.define('Cartao', {
     primaryKey: true,
     autoIncrement: true,
   },
+  id_usuario: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'usuarios',
+      key: 'id_usuario',
+    },
+  },
   nome: {
     type: DataTypes.STRING(100),
-    allowNull: false, // Ex: "Nubank Roxinho"
+    allowNull: false,
   },
   bandeira: {
     type: DataTypes.STRING(50),
-    allowNull: false, // Ex: "Visa", "Mastercard"
+    allowNull: false,
   },
   limite_total: {
     type: DataTypes.DECIMAL(10, 2),
@@ -43,7 +51,5 @@ const Cartao = sequelize.define('Cartao', {
   tableName: 'cartoes',
   timestamps: true,
 });
-
-// Nota: O relacionamento Cartao.belongsTo(Usuario) foi centralizado no db.js para evitar dependência circular.
 
 module.exports = Cartao;
