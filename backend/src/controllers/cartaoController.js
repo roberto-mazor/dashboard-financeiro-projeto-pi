@@ -1,10 +1,9 @@
-const { Cartao } = require('../config/db');
+const Cartao = require('../models/Cartao');
 
 // Listar cartões
 exports.listar = async (req, res) => {
   try {
-    // Captura o ID do usuário de qualquer convenção usada no seu middleware de autenticação
-    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id;
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
 
     if (!idUsuario) {
       return res.status(401).json({ error: 'Usuário não autenticado no token.' });
@@ -28,7 +27,7 @@ exports.listar = async (req, res) => {
 // Criar cartão
 exports.criar = async (req, res) => {
   try {
-    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id;
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
     const { nome, bandeira, limite_total, dia_fechamento, dia_vencimento } = req.body;
 
     if (!idUsuario) {
@@ -64,7 +63,7 @@ exports.criar = async (req, res) => {
 // Excluir cartão
 exports.excluir = async (req, res) => {
   try {
-    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id;
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
     const { id } = req.params;
 
     const cartao = await Cartao.findOne({
