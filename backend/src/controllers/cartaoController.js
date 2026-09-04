@@ -11,7 +11,10 @@ exports.listar = async (req, res) => {
     }
 
     const cartoes = await Cartao.findAll({
-      where: { id_usuario: idUsuario },
+      where: {
+        id_usuario: idUsuario,
+        status: 1 // 👈 Traz apenas cartões ativos para a tela de cartões e modal
+      },
       order: [['id_cartao', 'DESC']],
     });
 
@@ -64,28 +67,34 @@ exports.criar = async (req, res) => {
 // Excluir cartão
 exports.excluir = async (req, res) => {
   try {
-    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
     const { id } = req.params;
+    const id_usuario = req.usuario.id;
 
     const cartao = await Cartao.findOne({
-      where: {
-        id_cartao: id,
-        id_usuario: idUsuario,
-      },
+      where: { id_cartao: id, id_usuario }
     });
 
     if (!cartao) {
       return res.status(404).json({ error: 'Cartão não encontrado.' });
     }
 
-    await cartao.destroy();
-    return res.status(200).json({ message: 'Cartão excluído com sucesso.' });
+    // Soft delete: inativa o cartão
+    // Se a sua coluna for status (1 ou 0) ou ativo (true ou false):
+    if (cartao.status !== undefined) {
+      cartao.status = 0;
+    } else if (cartao.ativo !== undefined) {
+      cartao.ativo = false;
+    } else {
+      // Se não tiver a coluna ainda, podemos criá-la ou usar o campo status
+      cartao.status = 0;
+    }
+
+    await cartao.save();
+
+    return res.json({ message: 'Cartão removido com sucesso!' });
   } catch (error) {
-    console.error('ERRO AO EXCLUIR CARTÃO:', error);
-    return res.status(500).json({
-      error: 'Erro ao excluir cartão.',
-      detalhes: error.message,
-    });
+    console.error('Erro ao inativar cartão:', error);
+    return res.status(500).json({ error: 'Erro ao remover cartão.' });
   }
 };
 

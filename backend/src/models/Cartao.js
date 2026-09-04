@@ -47,6 +47,12 @@ const Cartao = sequelize.define('Cartao', {
       max: 31,
     },
   },
+  // 👇 Adicione a coluna status aqui
+  status: {
+    type: DataTypes.INTEGER, // ou DataTypes.SMALLINT
+    allowNull: false,
+    defaultValue: 1, // 1 = Ativo, 0 = Inativo (Soft Delete)
+  },
 }, {
   tableName: 'cartoes',
   timestamps: true,
