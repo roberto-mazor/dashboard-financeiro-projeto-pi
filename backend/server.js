@@ -55,17 +55,17 @@ if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3001;
     const startServer = async () => {
         try {
-            await sequelize.authenticate(); // sem if, pois se falhar, pula direto pro catch
+            const isConnected = await sequelize.authenticate();
             console.log(' Conexão com o banco de dados estabelecida com sucesso.');
-
-            await sequelize.sync({ alter: true }); // cria coluna e tabela inserida no model
-            console.log('✅ Tabelas sincronizadas localmente.');
-
-            app.listen(PORT, () => {
-                console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-            });
+            if (isConnected) {
+                await sequelize.sync({ alter: true });
+                console.log('✅ Tabelas sincronizadas localmente.');
+                app.listen(PORT, () => {
+                    console.log(` Servidor rodando em http://localhost:${PORT}`);
+                });
+            }
         } catch (error) {
-            console.error('❌ Falha ao iniciar o servidor local:', error);
+            console.error("❌ Falha ao iniciar o servidor local:", error);
         }
     };
     startServer();
