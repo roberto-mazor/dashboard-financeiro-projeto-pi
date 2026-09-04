@@ -1,4 +1,3 @@
-const Cartao = require('../models/Cartao');
 const { Cartao, Transacao, Categoria, sequelize } = require('../config/db');
 
 // Listar cartões
