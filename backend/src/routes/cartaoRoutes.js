@@ -8,5 +8,6 @@ router.use(authMiddleware);
 router.get('/', cartaoController.listar);
 router.post('/', cartaoController.criar);
 router.delete('/:id', cartaoController.excluir);
+router.post('/:id/pagar-fatura', cartaoController.pagarFatura);
 
 module.exports = router;

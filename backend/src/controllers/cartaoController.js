@@ -1,4 +1,5 @@
 const Cartao = require('../models/Cartao');
+const { Cartao, Transacao, Categoria, sequelize } = require('../config/db');
 
 // Listar cartões
 exports.listar = async (req, res) => {
@@ -83,6 +84,99 @@ exports.excluir = async (req, res) => {
     console.error('ERRO AO EXCLUIR CARTÃO:', error);
     return res.status(500).json({
       error: 'Erro ao excluir cartão.',
+      detalhes: error.message,
+    });
+  }
+};
+
+exports.pagarFatura = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id;
+    const { id } = req.params;
+
+    if (!idUsuario) {
+      await t.rollback();
+      return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
+    const cartao = await Cartao.findOne({
+      where: {
+        id_cartao: Number(id),
+        id_usuario: Number(idUsuario),
+      },
+      transaction: t,
+    });
+
+    if (!cartao) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Cartão não encontrado.' });
+    }
+
+    const limiteTotal = parseFloat(cartao.limite_total) || 0;
+    const limiteDisponivel = parseFloat(cartao.limite_disponivel) || 0;
+    const valorFatura = parseFloat((limiteTotal - limiteDisponivel).toFixed(2));
+
+    if (valorFatura <= 0) {
+      await t.rollback();
+      return res.status(400).json({ error: 'Este cartão não possui fatura em aberto para pagar.' });
+    }
+
+    // 1. Busca ou cria uma categoria 'Pagamento de Fatura' do tipo despesa
+    let categoriaFatura = await Categoria.findOne({
+      where: {
+        id_usuario: Number(idUsuario),
+        nome: 'Pagamento de Fatura',
+      },
+      transaction: t,
+    });
+
+    if (!categoriaFatura) {
+      categoriaFatura = await Categoria.create(
+        {
+          id_usuario: Number(idUsuario),
+          nome: 'Pagamento de Fatura',
+          tipo: 'despesa',
+        },
+        { transaction: t }
+      );
+    }
+
+    const hoje = new Date().toISOString().split('T')[0];
+
+    // 2. Cria o registro de despesa em conta
+    await Transacao.create(
+      {
+        id_usuario: Number(idUsuario),
+        descricao: `Pagamento Fatura - ${cartao.nome}`,
+        valor: valorFatura,
+        data: hoje,
+        id_categoria: categoriaFatura.id_categoria || categoriaFatura.id,
+        id_cartao: null, // Débito em conta, não vincula a outro cartão
+      },
+      { transaction: t }
+    );
+
+    // 3. Restabelece o limite do cartão
+    await cartao.update(
+      {
+        limite_disponivel: limiteTotal,
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    return res.status(200).json({
+      message: 'Fatura paga com sucesso!',
+      valorPago: valorFatura,
+      cartaoAtualizado: cartao,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.error('ERRO AO PAGAR FATURA:', error);
+    return res.status(500).json({
+      error: 'Erro ao processar pagamento da fatura.',
       detalhes: error.message,
     });
   }
