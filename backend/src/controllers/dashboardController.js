@@ -70,19 +70,34 @@ exports.getResumo = async (req, res) => {
         let saidasMes = 0;
         transacoesMes.forEach((t) => {
             const valor = Math.abs(parseFloat(t.valor)) || 0;
-            const tipo = t.categoria?.tipo?.toLowerCase();
-            if (tipo === 'receita') entradasMes += valor;
-            else if (tipo === 'despesa') saidasMes += valor;
+            const tipo = (t.tipo || t.categoria?.tipo || '').toLowerCase();
+            const ehCredito = Boolean(t.id_cartao);
+
+            if (tipo === 'receita') {
+                entradasMes += valor;
+            } else if (tipo === 'despesa') {
+                if (!ehCredito) {
+                    saidasMes += valor;
+                }
+            }
         });
 
-        // Cálculo do Patrimônio Total
+        // Cálculo do Saldo Total Acumulado
         let entradasTotal = 0;
         let saidasTotal = 0;
         todasTransacoes.forEach((t) => {
             const valor = Math.abs(parseFloat(t.valor)) || 0;
-            const tipo = t.categoria?.tipo?.toLowerCase();
-            if (tipo === 'receita') entradasTotal += valor;
-            else if (tipo === 'despesa') saidasTotal += valor;
+            const tipo = (t.tipo || t.categoria?.tipo || '').toLowerCase();
+            const ehCredito = Boolean(t.id_cartao);
+
+            if (tipo === 'receita') {
+                entradasTotal += valor;
+            } else if (tipo === 'despesa') {
+                // Ignora compras do cartão no saldo acumulado em conta
+                if (!ehCredito) {
+                    saidasTotal += valor;
+                }
+            }
         });
 
         return res.json({
@@ -90,7 +105,7 @@ exports.getResumo = async (req, res) => {
             saidas: parseFloat(saidasMes.toFixed(2)),
             saldo: parseFloat((entradasTotal - saidasTotal).toFixed(2)),
             totalTransacoesPeriodo: transacoesMes.length,
-            ultimasTransacoes, // <-- Transações recentes já com o objeto 'cartao'
+            ultimasTransacoes,
         });
     } catch (error) {
         console.error('Erro no DashboardController:', error);
