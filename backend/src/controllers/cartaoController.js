@@ -155,10 +155,12 @@ exports.pagarFatura = async (req, res) => {
         id_usuario: Number(idUsuario),
         descricao: `Pagamento Fatura - ${cartao.nome}`,
         valor: valorFatura,
-        tipo: 'Despesa', // 👈 CORRIGIDO: ENUM com a primeira maiúscula
+        tipo: 'Despesa', // Obrigatoriamente 'Despesa'
+        tipo_transacao: 'Despesa',
         data: hoje,
         id_categoria: categoriaFatura.id_categoria || categoriaFatura.id,
-        id_cartao: null, // Débito na conta principal, não no cartão
+        id_cartao: null, 
+        forma_pagamento: 'Dinheiro', // ou 'Conta'
       },
       { transaction: t }
     );
