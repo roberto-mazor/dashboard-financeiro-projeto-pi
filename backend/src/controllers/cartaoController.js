@@ -12,7 +12,7 @@ exports.listar = async (req, res) => {
     const cartoes = await Cartao.findAll({
       where: {
         id_usuario: idUsuario,
-        status: 1 // 👈 Traz apenas cartões ativos para a tela de cartões e modal
+        status: 1, // Traz apenas cartões ativos
       },
       order: [['id_cartao', 'DESC']],
     });
@@ -51,6 +51,7 @@ exports.criar = async (req, res) => {
       limite_disponivel: limiteNum,
       dia_fechamento: parseInt(dia_fechamento, 10),
       dia_vencimento: parseInt(dia_vencimento, 10),
+      status: 1,
     });
 
     return res.status(201).json(novoCartao);
@@ -63,44 +64,39 @@ exports.criar = async (req, res) => {
   }
 };
 
-// Excluir cartão
+// Excluir cartão (Soft Delete)
 exports.excluir = async (req, res) => {
   try {
     const { id } = req.params;
-    const id_usuario = req.usuario.id;
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
+
+    if (!idUsuario) {
+      return res.status(401).json({ error: 'Usuário não autenticado no token.' });
+    }
 
     const cartao = await Cartao.findOne({
-      where: { id_cartao: id, id_usuario }
+      where: { id_cartao: id, id_usuario: idUsuario },
     });
 
     if (!cartao) {
       return res.status(404).json({ error: 'Cartão não encontrado.' });
     }
 
-    // Soft delete: inativa o cartão
-    // Se a sua coluna for status (1 ou 0) ou ativo (true ou false):
-    if (cartao.status !== undefined) {
-      cartao.status = 0;
-    } else if (cartao.ativo !== undefined) {
-      cartao.ativo = false;
-    } else {
-      // Se não tiver a coluna ainda, podemos criá-la ou usar o campo status
-      cartao.status = 0;
-    }
-
+    cartao.status = 0;
     await cartao.save();
 
     return res.json({ message: 'Cartão removido com sucesso!' });
   } catch (error) {
     console.error('Erro ao inativar cartão:', error);
-    return res.status(500).json({ error: 'Erro ao remover cartão.' });
+    return res.status(500).json({ error: 'Erro ao remover cartão.', detalhes: error.message });
   }
 };
 
+// Pagar fatura
 exports.pagarFatura = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id;
+    const idUsuario = req.id_usuario || req.userId || req.usuario?.id_usuario || req.usuario?.id || req.user?.id;
     const { id } = req.params;
 
     if (!idUsuario) {
@@ -130,7 +126,7 @@ exports.pagarFatura = async (req, res) => {
       return res.status(400).json({ error: 'Este cartão não possui fatura em aberto para pagar.' });
     }
 
-    // 1. Busca ou cria uma categoria 'Pagamento de Fatura' do tipo despesa
+    // 1. Busca ou cria uma categoria 'Pagamento de Fatura' com tipo 'Despesa'
     let categoriaFatura = await Categoria.findOne({
       where: {
         id_usuario: Number(idUsuario),
@@ -144,7 +140,8 @@ exports.pagarFatura = async (req, res) => {
         {
           id_usuario: Number(idUsuario),
           nome: 'Pagamento de Fatura',
-          tipo: 'despesa',
+          tipo: 'Despesa',
+          status: 1,
         },
         { transaction: t }
       );
@@ -158,9 +155,10 @@ exports.pagarFatura = async (req, res) => {
         id_usuario: Number(idUsuario),
         descricao: `Pagamento Fatura - ${cartao.nome}`,
         valor: valorFatura,
+        tipo: 'Despesa', // 👈 CORRIGIDO: ENUM com a primeira maiúscula
         data: hoje,
         id_categoria: categoriaFatura.id_categoria || categoriaFatura.id,
-        id_cartao: null, // Débito em conta, não vincula a outro cartão
+        id_cartao: null, // Débito na conta principal, não no cartão
       },
       { transaction: t }
     );
